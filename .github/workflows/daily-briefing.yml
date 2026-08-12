@@ -1,0 +1,30 @@
+name: Daily briefing
+
+on:
+  schedule:
+    # 13:00 UTC = 9:00 AM Eastern during daylight saving time.
+    # GitHub evaluates cron in UTC and does not follow US clock changes, so
+    # this needs to become "0 14 * * *" when the clocks go back in November.
+    - cron: "0 13 * * *"
+  workflow_dispatch: # lets you run it by hand from the Actions tab
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Send the briefing
+        env:
+          GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+          GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: go run ./cmd/briefing

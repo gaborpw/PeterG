@@ -2,111 +2,115 @@
 
 Guidance for Claude Code sessions working in this repository.
 
-## What this project is
+## What this is
 
-An automated daily email briefing for Peter Gabor. Two scheduled jobs scan his
-Gmail and Outlook accounts and report what matters; a second job periodically
-tunes the filter. There is no application code — the "program" is this repo's
-prose plus two scheduled Claude sessions. Treat the Markdown as the source of
-truth and keep it precise.
+A Go program that scans Peter's personal Gmail and emails him a daily briefing
+of what matters. It runs in GitHub Actions on a cron schedule. See
+[`README.md`](./README.md) for setup and [`email-rules.md`](./email-rules.md)
+for the filter.
 
-## Repository layout
+## Scope — personal Gmail only
 
-| File | Role |
+**Do not add work email to this project.** An earlier version scanned Peter's
+Outlook account at Kinective; he removed it deliberately. Do not reintroduce
+Microsoft 365, Outlook, or `kinective.io` anywhere — not in the scanner, not in
+the rules, not as an example in the docs.
+
+The one account is `gaborpw19@gmail.com`.
+
+## Building and testing
+
+```sh
+go build ./...        # must compile
+go vet ./...          # must be clean
+gofmt -l .            # must print nothing
+go run ./cmd/briefing -dry-run   # prints the briefing, sends nothing
+```
+
+`-dry-run` needs real credentials in the environment but touches no mailbox
+beyond reading it — the right way to check a rules or prompt change.
+
+There are no tests yet. The interesting behavior is Claude's classification,
+which is better verified by reading a real `-dry-run` briefing than by asserting
+on a mock.
+
+## Layout and where things go
+
+| Package | Responsibility |
 |---|---|
-| `README.md` | Human-facing overview |
-| `email-rules.md` | **The filter.** What to report, what to suppress |
-| `CLAUDE.md` | This file — conventions and gotchas |
+| `cmd/briefing` | Config from env, wiring, top-level error handling |
+| `internal/mail` | Gmail auth, paging, message fetch |
+| `internal/brief` | The Claude call — classification and writing |
+| `internal/deliver` | Email and push delivery |
 
-`email-rules.md` is the file that actually changes behavior. Read it at the start
-of any run and write calibration results back into it.
+Keep the Claude call in `internal/brief`. It is the only place model behavior is
+configured, and scattering prompt text across packages makes it impossible to
+reason about what the model is actually being asked.
 
-## Accounts
+## Things that will bite you
 
-- Personal: `gaborpw19@gmail.com` — Gmail connector
-- Work: `Peter.Gabor@kinective.io` — Microsoft 365 connector
-- Peter is an Associate Software Engineer at Kinective, based in Ohio
-  (`America/New_York`)
+- **Page through Gmail results.** One page is not a full day — personal volume
+  runs ~100 threads in 24 hours. The paging loop in `mail.Recent` is
+  load-bearing, not defensive.
+- **`in:anywhere` is what reaches spam and trash.** Dropping it silently halves
+  the point of the project.
+- **Metadata format only.** `Format("metadata")` fetches headers without bodies.
+  Switching to `full` would multiply token cost roughly tenfold for a marginal
+  accuracy gain — don't, without a measured reason.
+- **Check `StopReason` before reading content.** A safety classifier can decline
+  a request with a normal HTTP 200 and an empty content array; indexing blocks
+  unconditionally panics on that path.
+- **The rules file is read at runtime, not embedded.** `email-rules.md` is
+  passed to Claude on every run so edits take effect the next morning without a
+  redeploy. Keep it that way.
+- **Push failures must not fail the run.** The email is the durable copy; a
+  dropped notification is logged and ignored.
 
-`peter.gabor@nexussoft.com` forwards into the Outlook mailbox. It carries
-personal mail, not work mail — see `email-rules.md` before classifying it.
+## Model configuration
 
-## Running the daily scan
+`brief.Model` is `claude-opus-5`. Thinking is adaptive; the system prompt is
+cached (it is byte-identical across runs, so it costs one write and is served at
+cache-read rates after).
 
-Search both accounts for the last 24 hours, spam and junk included.
-
-- **Gmail:** `newer_than:1d in:anywhere -in:sent -in:draft`
-  `in:anywhere` covers spam and trash. Page through results — one page is not the
-  whole day; personal volume runs ~100 threads in 24 hours.
-- **Outlook:** `outlook_email_search` with `afterDateTime` set 24 hours back.
-  The default search covers the Inbox only — **query `Junk Email` separately**
-  with `folderName`, or junk is silently missed.
-
-Read metadata and snippets first. Only open a full message body when the snippet
-is genuinely ambiguous and the answer changes whether it gets reported. Opening
-everything wastes the context budget and produces a worse summary, not a better
-one.
-
-## Writing the briefing
-
-Formatting rules live in `email-rules.md` under "How to write the briefing".
-Follow them there rather than duplicating them here.
-
-Two things worth repeating: never pad a quiet day into a long report, and always
-carry concrete specifics through — dollar amounts, dates, ticket numbers. A
-briefing that says "a bill arrived" instead of "$140.60 to UH Hospitals, paid"
-has failed at its job.
-
-## Calibration runs
-
-Every two weeks, ask Peter about **specific messages**, not preferences in the
-abstract. "Was the Confluence digest on the 14th worth flagging?" produces a
-usable rule; "what kinds of email do you care about?" does not.
-
-Keep it to a handful of questions. Then edit `email-rules.md`, append an entry to
-its change log explaining the reasoning, and commit. Do not let calibration turn
-into an interview.
+Do not downgrade the model to save money without asking Peter — the judgment
+call about what matters is the entire product, and it is his call to trade
+quality for cost.
 
 ## Scheduling
 
-Both jobs run as Routines (`create_trigger`), each firing a fresh session.
-
-**Cron is evaluated in UTC**, and Ohio observes daylight saving:
+GitHub Actions cron is UTC and does not follow US clock changes:
 
 | Period | 9:00 AM Eastern is | Cron |
 |---|---|---|
 | Mar–Nov (EDT, UTC−4) | 13:00 UTC | `0 13 * * *` |
 | Nov–Mar (EST, UTC−5) | 14:00 UTC | `0 14 * * *` |
 
-The schedule does not adjust itself. When clocks change, update both Routines
-with `update_trigger` or the briefing arrives an hour early all winter. Use
-`list_triggers` to find the trigger IDs.
+The workflow is pinned to `0 13 * * *`. Update it when the clocks change.
 
 ## Environment constraints
 
-Discovered the hard way during setup — save yourself the detour:
+Discovered the hard way — save yourself the detour:
 
-- **Routines created via `create_trigger` cannot carry mail connectors.** The
-  `connectors` parameter is unavailable for this organization, and the tool warns
-  that fired sessions therefore run without `mcp__Gmail__*` and
-  `mcp__Microsoft_365__*` tools. If a scheduled run reports that the mail tools
-  are missing, the fix is to recreate the Routine from the Routines UI on
-  claude.ai, where connectors can be attached, and then delete the trigger
-  created here. Both existing triggers are instructed to say so explicitly rather
-  than report a falsely quiet day.
+- **The Anthropic Go SDK must be v1.60.0 or newer.** `ThinkingConfigAdaptiveParam`
+  and `Message.StopDetails` do not exist on older versions and the build fails
+  with `undefined:` errors.
 - **Repository settings writes are blocked** by the agent proxy. Renaming the
-  repo, changing visibility, and creating new repositories all return 403. The
-  repo is named `PeterG` for this reason, not by preference. Peter has to make
-  those changes himself in the GitHub web UI.
+  repo, changing visibility, and creating repositories all return 403. The repo
+  is named `PeterG` for that reason, not by preference — Peter has to make those
+  changes himself in the GitHub web UI.
 - Reading repos, pushing commits, and opening PRs all work normally.
 - No `gh` CLI. Use the `mcp__github__*` tools.
+- **Routines created via `create_trigger` cannot carry mail connectors** — the
+  parameter is unavailable for this organization, so sessions they fire may lack
+  `mcp__Gmail__*` tools. This is why the daily briefing moved to GitHub Actions.
+  A Gmail-only calibration Routine still exists as a Claude session.
 
 ## Working style
 
-Peter is directing this from a phone. Optimize accordingly:
+Peter is directing this from a phone:
 
 - Lead with the answer, then the detail
 - Prefer a short summary in chat over a long file he has to open
 - Don't ask him to run terminal commands — do the work and report back
-- Flag anything that needs his hands (like the repo rename) explicitly and give
-  tap-by-tap steps
+- Flag anything that needs his hands (OAuth setup, the repo rename) explicitly,
+  with tap-by-tap steps
