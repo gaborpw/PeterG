@@ -86,6 +86,14 @@ with `update_trigger` or the briefing arrives an hour early all winter. Use
 
 Discovered the hard way during setup — save yourself the detour:
 
+- **Routines created via `create_trigger` cannot carry mail connectors.** The
+  `connectors` parameter is unavailable for this organization, and the tool warns
+  that fired sessions therefore run without `mcp__Gmail__*` and
+  `mcp__Microsoft_365__*` tools. If a scheduled run reports that the mail tools
+  are missing, the fix is to recreate the Routine from the Routines UI on
+  claude.ai, where connectors can be attached, and then delete the trigger
+  created here. Both existing triggers are instructed to say so explicitly rather
+  than report a falsely quiet day.
 - **Repository settings writes are blocked** by the agent proxy. Renaming the
   repo, changing visibility, and creating new repositories all return 403. The
   repo is named `PeterG` for this reason, not by preference. Peter has to make

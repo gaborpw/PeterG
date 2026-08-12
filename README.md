@@ -53,7 +53,7 @@ answer the biweekly questions and let it update itself.
 | Job | When | What it does |
 |---|---|---|
 | Daily briefing | 9:00 AM ET, daily | Scans 24h of mail, sends the summary |
-| Calibration | Every other Monday, 9:00 AM ET | Asks what to keep or drop, updates the rules |
+| Calibration | 9:00 AM ET on the 1st and 15th | Asks what to keep or drop, updates the rules |
 
 Delivery is by push notification and email.
 
