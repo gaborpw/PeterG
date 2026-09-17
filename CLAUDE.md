@@ -9,6 +9,10 @@ of what matters. It runs in GitHub Actions on a cron schedule. See
 [`README.md`](./README.md) for setup and [`email-rules.md`](./email-rules.md)
 for the filter.
 
+`docs/` holds design work unrelated to the briefing — currently
+[`docs/gamelog-spec.md`](./docs/gamelog-spec.md), a spec for a Letterboxd-style
+game tracking app. It ships no code and nothing in `cmd/` or `internal/` reads it.
+
 ## Scope — personal Gmail only
 
 **Do not add work email to this project.** An earlier version scanned Peter's
