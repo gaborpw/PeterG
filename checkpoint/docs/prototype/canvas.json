@@ -1,0 +1,53 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-09-17T12:00:00Z" },
+  "title": "Checkpoint — iOS screens",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 390, "h": 1180, "title": "Game page", "is_interactive": true },
+    "Playing.dc.html": { "x": 470, "y": 0, "w": 390, "h": 940, "title": "Currently playing", "is_interactive": true },
+    "Feed.dc.html": { "x": 940, "y": 0, "w": 390, "h": 960, "title": "Finishes feed", "is_interactive": true },
+    "Profile.dc.html": { "x": 1410, "y": 0, "w": 390, "h": 1060, "title": "Profile", "is_interactive": true },
+    "LogSheet.dc.html": { "x": 1880, "y": 0, "w": 390, "h": 900, "title": "Log a session", "is_interactive": true }
+  },
+  "order": ["Main.dc.html", "Playing.dc.html", "Feed.dc.html", "Profile.dc.html", "LogSheet.dc.html"],
+  "notes": {
+    "t1": {
+      "x": 0,
+      "y": -300,
+      "text": "Checkpoint — a Letterboxd for games",
+      "kind": "title1",
+      "maxW": 2270
+    },
+    "n1": {
+      "x": 0,
+      "y": 1300,
+      "w": 390,
+      "text": "Game page. The three stat cells are the average-playtime and average-rating asks, plus finish rate. Below them, how far people actually get — the funnel is the thing no film tracker can show. The bottom review is hidden because its author finished and you are 47h in; tap Reveal to override.",
+      "color": "orange"
+    },
+    "n2": {
+      "x": 470,
+      "y": 1300,
+      "w": 390,
+      "text": "Currently playing. Your own active playthroughs with live hours at the top, friends playing right now underneath — game, platform, hours so far, and when they last sat down with it.",
+      "color": "green"
+    },
+    "n3": {
+      "x": 940,
+      "y": 1300,
+      "w": 390,
+      "text": "The feed, filtered to finishes. Each entry is the closest thing to a Letterboxd log: who finished what, hours, elapsed weeks, platform, rating, heart, review. Dropping a game is a first-class event in the same feed — see Dev on Starfield.",
+      "color": "blue"
+    },
+    "n4": {
+      "x": 1880,
+      "y": 1300,
+      "w": 390,
+      "text": "Log sheet, fully working — tap the status pills. Finished reveals completion depth, Dropped reveals a reason. Stars plus the half toggle give the 10-bucket scale. Every number across these screens is sample data.",
+      "color": "purple"
+    }
+  },
+  "designSystems": []
+}

@@ -1,0 +1,43 @@
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+
+# Go
+/api/bin/
+*.test
+*.out
+coverage.txt
+
+# Node / Expo / Next
+node_modules/
+.expo/
+.next/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# iOS / Android build output
+ios/
+android/
+*.ipa
+*.apk
+*.aab
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Claude Code local overrides
+.claude/settings.local.json

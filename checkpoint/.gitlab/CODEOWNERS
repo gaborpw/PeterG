@@ -1,0 +1,11 @@
+# Review ownership. Enforced on GitLab Premium and above; documentation on Free.
+# Replace @gaborpw with your GitLab username.
+
+*                   @gaborpw
+
+/docs/spec.md       @gaborpw
+/docs/adr/          @gaborpw
+/.gitlab-ci.yml     @gaborpw
+/api/               @gaborpw
+/app/               @gaborpw
+/web/               @gaborpw

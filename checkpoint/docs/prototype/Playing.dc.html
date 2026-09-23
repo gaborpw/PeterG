@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0F1115; font-family: "IBM Plex Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E9A84C; text-decoration: none; }
+    a:hover { color: #F3BE72; }
+    button { font: inherit; cursor: pointer; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 940px; box-sizing: border-box; background: #0F1115; color: #F2F0EC; display: flex; flex-direction: column; overflow: hidden;">
+
+  <div style="height: 62px; flex-shrink: 0; padding: 0 20px; display: flex; align-items: center;">
+    <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 25px; font-weight: 700; letter-spacing: -0.01em;">Playing</h1>
+  </div>
+
+  <div style="flex-grow: 1; padding: 4px 20px 0; display: flex; flex-direction: column; gap: 20px;">
+
+    <div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 11px;">
+        <h2 style="margin: 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Yours</h2>
+        <span style="font-size: 11px; color: #7C838F;">9h this week</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="padding: 13px 14px; border-radius: 14px; background: #181B21; border: 1px solid #33513F; display: flex; gap: 13px; align-items: center;">
+          <div style="width: 46px; height: 62px; flex-shrink: 0; border-radius: 8px; background: #20242C; border: 1px solid #2A2F39;"></div>
+          <div style="flex-grow: 1; min-width: 0;">
+            <a href="Main.dc.html" style="display: block; font-size: 14.5px; font-weight: 600; color: #F2F0EC; margin-bottom: 4px;">Elden Ring</a>
+            <div style="font-size: 11.5px; color: #7C838F; margin-bottom: 8px;">PS5 &middot; last played Sunday</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; color: #5CC39A;">47h</span>
+              <span style="display: flex; gap: 2.5px; align-items: flex-end; height: 16px;">
+                <span style="width: 4px; height: 6px; border-radius: 1px; background: #2A2F39;"></span>
+                <span style="width: 4px; height: 11px; border-radius: 1px; background: #3D5C4C;"></span>
+                <span style="width: 4px; height: 4px; border-radius: 1px; background: #2A2F39;"></span>
+                <span style="width: 4px; height: 14px; border-radius: 1px; background: #5CC39A;"></span>
+                <span style="width: 4px; height: 9px; border-radius: 1px; background: #3D5C4C;"></span>
+                <span style="width: 4px; height: 16px; border-radius: 1px; background: #5CC39A;"></span>
+                <span style="width: 4px; height: 3px; border-radius: 1px; background: #2A2F39;"></span>
+              </span>
+            </div>
+          </div>
+          <a href="LogSheet.dc.html" aria-label="Log a session for Elden Ring" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: #20242C; display: flex; align-items: center; justify-content: center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#E9A84C" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          </a>
+        </div>
+
+        <div style="padding: 13px 14px; border-radius: 14px; background: #181B21; border: 1px solid #2A2F39; display: flex; gap: 13px; align-items: center;">
+          <div style="width: 46px; height: 62px; flex-shrink: 0; border-radius: 8px; background: #20242C; border: 1px solid #2A2F39;"></div>
+          <div style="flex-grow: 1; min-width: 0;">
+            <span style="display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 4px;">Balatro</span>
+            <div style="font-size: 11.5px; color: #7C838F; margin-bottom: 8px;">Switch &middot; played today</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; color: #5CC39A;">63h</span>
+              <span style="font-size: 10px; padding: 3px 7px; border-radius: 999px; background: #20242C; color: #9BA1AC;">ongoing</span>
+            </div>
+          </div>
+          <a href="LogSheet.dc.html" aria-label="Log a session for Balatro" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: #20242C; display: flex; align-items: center; justify-content: center;">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#E9A84C" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 11px;">
+        <h2 style="margin: 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Friends playing now</h2>
+        <span style="font-size: 11px; color: #7C838F;">12 active</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 3px;">
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 0;">
+          <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: #2E4640; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: #BCDCD0; position: relative;">MK</span>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 13.5px; margin-bottom: 2px;"><span style="font-weight: 600;">Mia</span> <span style="color: #9BA1AC;">is playing</span></div>
+            <div style="font-size: 12px; color: #C8CDD5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Hollow Knight: Silksong</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #5CC39A;">12h</div>
+            <div style="font-size: 10.5px; color: #7C838F; margin-top: 2px;">2h yesterday</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid #191C22;">
+          <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: #3A3346; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: #D4C9DC;">DA</span>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 13.5px; margin-bottom: 2px;"><span style="font-weight: 600;">Dev</span> <span style="color: #9BA1AC;">is playing</span></div>
+            <div style="font-size: 12px; color: #C8CDD5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Baldur's Gate 3</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #5CC39A;">71h</div>
+            <div style="font-size: 10.5px; color: #7C838F; margin-top: 2px;">4h today</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid #191C22;">
+          <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: #46342E; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: #DCC6BC;">SR</span>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 13.5px; margin-bottom: 2px;"><span style="font-weight: 600;">Sam</span> <span style="color: #9BA1AC;">is playing</span></div>
+            <div style="font-size: 12px; color: #C8CDD5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Hades II</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #5CC39A;">26h</div>
+            <div style="font-size: 10.5px; color: #7C838F; margin-top: 2px;">1h today</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid #191C22;">
+          <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: #2E3A46; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: #C9D2DC;">RL</span>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 13.5px; margin-bottom: 2px;"><span style="font-weight: 600;">Rae</span> <span style="color: #9BA1AC;">is playing</span></div>
+            <div style="font-size: 12px; color: #C8CDD5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Metaphor: ReFantazio</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #5CC39A;">38h</div>
+            <div style="font-size: 10.5px; color: #7C838F; margin-top: 2px;">3h Sunday</div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid #191C22;">
+          <span style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 19px; background: #2E3A46; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 600; color: #C9D2DC;">JT</span>
+          <div style="flex-grow: 1; min-width: 0;">
+            <div style="font-size: 13.5px; margin-bottom: 2px;"><span style="font-weight: 600;">Jon</span> <span style="color: #9BA1AC;">is playing</span></div>
+            <div style="font-size: 12px; color: #C8CDD5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Elden Ring</div>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #5CC39A;">31h</div>
+            <div style="font-size: 10.5px; color: #7C838F; margin-top: 2px;">2h Saturday</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="padding: 13px 14px; border-radius: 13px; background: #181B21; display: flex; align-items: center; gap: 12px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9A84C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M12 3v2"></path><path d="M12 19v2"></path><path d="M5 12H3"></path><path d="M21 12h-2"></path><circle cx="12" cy="12" r="4.5"></circle></svg>
+      <span style="flex-grow: 1; font-size: 12px; line-height: 1.45; color: #C8CDD5;">Three friends are playing <strong style="font-weight: 600; color: #F2F0EC;">Blue Prince</strong>, which is in your backlog.</span>
+    </div>
+
+    <div style="flex-grow: 1;"></div>
+  </div>
+
+  <div style="height: 72px; flex-shrink: 0; border-top: 1px solid #20242C; display: flex; align-items: stretch; background: #0F1115;">
+    <a href="Feed.dc.html" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #7C838F;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"></path><path d="M4 12h16"></path><path d="M4 18h10"></path></svg>
+      <span style="font-size: 9.5px;">Feed</span>
+    </a>
+    <a href="Playing.dc.html" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #E9A84C;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="5.5"></rect><path d="M7 11v3"></path><path d="M5.5 12.5h3"></path><path d="M16 11.5h.01"></path><path d="M18 13.5h.01"></path></svg>
+      <span style="font-size: 9.5px;">Playing</span>
+    </a>
+    <a href="Main.dc.html" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #7C838F;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="M16.5 16.5L21 21"></path></svg>
+      <span style="font-size: 9.5px;">Search</span>
+    </a>
+    <a href="Profile.dc.html" style="flex-grow: 1; flex-basis: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; color: #7C838F;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"></circle><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5"></path></svg>
+      <span style="font-size: 9.5px;">Profile</span>
+    </a>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":940}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -9,9 +9,11 @@ of what matters. It runs in GitHub Actions on a cron schedule. See
 [`README.md`](./README.md) for setup and [`email-rules.md`](./email-rules.md)
 for the filter.
 
-`docs/` holds design work unrelated to the briefing — currently
-[`docs/gamelog-spec.md`](./docs/gamelog-spec.md), a spec for a Letterboxd-style
-game tracking app. It ships no code and nothing in `cmd/` or `internal/` reads it.
+`checkpoint/` is a separate, unrelated product — spec, prototype and repo
+scaffolding for a Letterboxd-style game tracking app. It ships no code, nothing in
+`cmd/` or `internal/` reads it, and it is destined for its own GitLab repository
+(see [`checkpoint/docs/getting-started.md`](./checkpoint/docs/getting-started.md)).
+Leave it alone when working on the briefing.
 
 ## Scope — personal Gmail only
 

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body { margin: 0; background: #0F1115; font-family: "IBM Plex Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: #E9A84C; text-decoration: none; }
+    a:hover { color: #F3BE72; }
+    button { font: inherit; cursor: pointer; }
+    textarea { font: inherit; }
+  </style>
+</helmet>
+<div style="width: 390px; height: 900px; box-sizing: border-box; background: #0F1115; color: #F2F0EC; display: flex; flex-direction: column; overflow: hidden;">
+
+  <svg width="0" height="0" style="position: absolute;" aria-hidden="true"><defs><linearGradient id="halfstar" x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stop-color="#E9A84C"></stop><stop offset="50%" stop-color="#3A3F49"></stop></linearGradient></defs></svg>
+
+  <div style="height: 56px; flex-shrink: 0; padding: 0 8px 0 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #191C22;">
+    <a href="Main.dc.html" style="min-height: 44px; padding: 11px 8px; display: flex; align-items: center; font-size: 13.5px; color: #9BA1AC;">Cancel</a>
+    <span style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;">Log a session</span>
+    <a href="Playing.dc.html" style="min-height: 44px; padding: 11px 12px; display: flex; align-items: center; font-size: 13.5px; font-weight: 600; color: #E9A84C;">Save</a>
+  </div>
+
+  <div style="flex-grow: 1; padding: 18px 20px 0; display: flex; flex-direction: column; gap: 20px;">
+
+    <div style="display: flex; gap: 13px; align-items: center;">
+      <div style="width: 46px; height: 62px; flex-shrink: 0; border-radius: 8px; background: #20242C; border: 1px solid #2A2F39;"></div>
+      <div style="flex-grow: 1;">
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 4px;">Elden Ring</div>
+        <div style="font-size: 11.5px; color: #7C838F;">2022 &middot; FromSoftware</div>
+      </div>
+      <button type="button" style="min-height: 44px; padding: 10px 13px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #F2F0EC; font-size: 12.5px; display: flex; align-items: center; gap: 7px;">
+        PS5
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7C838F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+      </button>
+    </div>
+
+    <div>
+      <h2 style="margin: 0 0 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Status</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <sc-for list="{{ statuses }}" as="s" hint-placeholder-count="5">
+          <button type="button" onClick="{{ s.pick }}" style="{{ s.style }}">{{ s.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{ isFinished }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <h2 style="margin: 0 0 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">How finished?</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #E9A84C; background: #2B2419; color: #E9A84C; font-size: 13px; font-weight: 500;">Story</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">Everything</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">100%</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">Mastered</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDropped }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <h2 style="margin: 0 0 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Why did you stop?</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #C0705F; background: #2E211E; color: #D99C8B; font-size: 13px; font-weight: 500;">Bored</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">Too hard</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">Too long</button>
+          <button type="button" style="min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;">Life</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="display: flex; gap: 11px;">
+      <div style="flex-grow: 1; flex-basis: 0;">
+        <label for="hours" style="display: block; margin-bottom: 8px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Total hours</label>
+        <div style="display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: 11px; background: #181B21; border: 1px solid #2A2F39;">
+          <button type="button" aria-label="Fewer hours" style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 9px; border: 0; background: #20242C; color: #C8CDD5; display: flex; align-items: center; justify-content: center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+          </button>
+          <input id="hours" type="text" value="47" style="flex-grow: 1; min-width: 0; width: 100%; background: none; border: 0; color: #F2F0EC; font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; text-align: center;">
+          <button type="button" aria-label="More hours" style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 9px; border: 0; background: #20242C; color: #C8CDD5; display: flex; align-items: center; justify-content: center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+          </button>
+        </div>
+      </div>
+      <div style="flex-grow: 1; flex-basis: 0;">
+        <label for="played" style="display: block; margin-bottom: 8px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Played on</label>
+        <input id="played" type="text" value="17 Sep 2026" style="width: 100%; box-sizing: border-box; min-height: 50px; padding: 13px 14px; border-radius: 11px; background: #181B21; border: 1px solid #2A2F39; color: #F2F0EC; font-size: 13.5px;">
+      </div>
+    </div>
+
+    <div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px;">
+        <h2 style="margin: 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Your rating</h2>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: #E9A84C;">{{ ratingLabel }}</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 4px;">
+        <sc-for list="{{ stars }}" as="st" hint-placeholder-count="5">
+          <button type="button" onClick="{{ st.pick }}" aria-label="{{ st.aria }}" style="width: 48px; height: 48px; border: 0; background: none; padding: 0; display: flex; align-items: center; justify-content: center;">
+            <sc-if value="{{ st.isFull }}" hint-placeholder-val="{{ true }}">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#E9A84C"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.6l-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z"></path></svg>
+            </sc-if>
+            <sc-if value="{{ st.isHalf }}" hint-placeholder-val="{{ false }}">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="url(#halfstar)"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.6l-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z"></path></svg>
+            </sc-if>
+            <sc-if value="{{ st.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#3A3F49"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.6l-5.9 3.2 1.2-6.6L2.5 9.5l6.6-.9z"></path></svg>
+            </sc-if>
+          </button>
+        </sc-for>
+        <div style="flex-grow: 1;"></div>
+        <button type="button" onClick="{{ toggleHalf }}" style="{{ halfStyle }}">&frac12;</button>
+        <button type="button" onClick="{{ toggleLike }}" aria-label="Love this" style="width: 48px; height: 48px; border: 0; background: none; padding: 0; display: flex; align-items: center; justify-content: center;">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="{{ heartFill }}" stroke="{{ heartStroke }}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5C7 16.6 3.5 13.8 3.5 10.2 3.5 7.6 5.5 5.6 8 5.6c1.6 0 2.9.8 4 2.2 1.1-1.4 2.4-2.2 4-2.2 2.5 0 4.5 2 4.5 4.6 0 3.6-3.5 6.4-8.5 10.3z"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <label for="review" style="display: block; margin-bottom: 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #7C838F; font-weight: 600;">Review</label>
+      <textarea id="review" rows="3" style="width: 100%; box-sizing: border-box; padding: 13px 14px; border-radius: 12px; background: #181B21; border: 1px solid #2A2F39; color: #F2F0EC; font-size: 13px; line-height: 1.5; resize: none;">Forty-seven hours and the map still opens downward. Caelid broke me for a week.</textarea>
+      <div style="display: flex; align-items: center; gap: 9px; margin-top: 11px; padding: 10px 12px; border-radius: 11px; background: #181B21;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C838F" stroke-width="1.9" stroke-linecap="round" style="flex-shrink: 0;"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"></path><circle cx="12" cy="12" r="2.2"></circle></svg>
+        <span style="flex-grow: 1; font-size: 11.5px; line-height: 1.4; color: #9BA1AC;">Tagged <strong style="color: #C8CDD5; font-weight: 600;">47h in</strong>. Hidden from anyone earlier than you.</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; min-height: 44px;">
+        <input id="spoiler" type="checkbox" style="width: 19px; height: 19px; accent-color: #E9A84C; flex-shrink: 0;">
+        <label for="spoiler" style="font-size: 13px; color: #C8CDD5;">Contains spoilers</label>
+      </div>
+    </div>
+
+    <div style="flex-grow: 1;"></div>
+
+    <a href="Playing.dc.html" style="margin-bottom: 20px; min-height: 52px; border-radius: 14px; background: #E9A84C; color: #14120F; font-size: 14.5px; font-weight: 600; display: flex; align-items: center; justify-content: center;">Save session</a>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { status: 'playing', rating: 4, half: true, liked: true };
+  }
+
+  renderVals() {
+    const st = this.state;
+    const on = 'min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #5CC39A; background: #1D2A23; color: #8FCBA8; font-size: 13px; font-weight: 500;';
+    const off = 'min-height: 44px; padding: 11px 15px; border-radius: 11px; border: 1px solid #2A2F39; background: none; color: #C8CDD5; font-size: 13px;';
+
+    const statuses = [
+      { key: 'playing', label: 'Playing' },
+      { key: 'finished', label: 'Finished' },
+      { key: 'paused', label: 'Paused' },
+      { key: 'dropped', label: 'Dropped' },
+      { key: 'ongoing', label: 'Ongoing' },
+    ].map((s) => ({
+      label: s.label,
+      style: st.status === s.key ? on : off,
+      pick: () => this.setState({ status: s.key }),
+    }));
+
+    const value = st.rating > 0 && st.half ? st.rating - 0.5 : st.rating;
+    const stars = [1, 2, 3, 4, 5].map((n) => ({
+      aria: 'Rate ' + n + ' out of 5',
+      isFull: n <= Math.floor(value),
+      isHalf: n === Math.ceil(value) && value % 1 !== 0,
+      isEmpty: n > Math.ceil(value),
+      pick: () => this.setState({ rating: n, half: false }),
+    }));
+
+    const halfOn = 'min-width: 44px; min-height: 44px; padding: 10px 13px; border-radius: 11px; font-size: 15px; border: 1px solid #E9A84C; background: #2B2419; color: #E9A84C;';
+    const halfOff = 'min-width: 44px; min-height: 44px; padding: 10px 13px; border-radius: 11px; font-size: 15px; border: 1px solid #2A2F39; background: none; color: #7C838F;';
+
+    return {
+      statuses: statuses,
+      stars: stars,
+      isFinished: st.status === 'finished',
+      isDropped: st.status === 'dropped',
+      ratingLabel: value > 0 ? value.toFixed(1) + ' / 5' : 'Not rated',
+      halfStyle: st.half ? halfOn : halfOff,
+      toggleHalf: () => this.setState({ half: !st.half }),
+      toggleLike: () => this.setState({ liked: !st.liked }),
+      heartFill: st.liked ? '#C0705F' : 'none',
+      heartStroke: st.liked ? '#C0705F' : '#7C838F',
+    };
+  }
+}
+</script>
+</body>
+</html>
