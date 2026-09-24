@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "gitlab.gitlab-workflow",
+    "anthropic.claude-code",
+    "editorconfig.editorconfig",
+    "golang.go",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "expo.vscode-expo-tools"
+  ]
+}
