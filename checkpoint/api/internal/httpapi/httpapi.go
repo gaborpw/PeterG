@@ -6,10 +6,15 @@ package httpapi
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
+
+	"gitlab.com/gaborpw/checkpoint/api/internal/playthrough"
 )
 
 // Pinger is the part of the store this package needs. Taking the narrow
@@ -21,11 +26,12 @@ type Pinger interface {
 
 type Server struct {
 	store Pinger
+	plays *playthrough.Repo
 	log   *slog.Logger
 }
 
-func New(store Pinger, log *slog.Logger) *Server {
-	return &Server{store: store, log: log}
+func New(store Pinger, plays *playthrough.Repo, log *slog.Logger) *Server {
+	return &Server{store: store, plays: plays, log: log}
 }
 
 // Routes returns the service's handler.
@@ -44,7 +50,11 @@ func (s *Server) Routes() http.Handler {
 
 	mux.HandleFunc("GET /v1/games/{id}", s.handleGetGame)
 
-	return s.withRequestLog(mux)
+	mux.HandleFunc("GET /v1/me/playthroughs", s.handleListPlaythroughs)
+	mux.HandleFunc("POST /v1/me/playthroughs", s.handleSavePlaythrough)
+	mux.HandleFunc("DELETE /v1/me/playthroughs/{id}", s.handleDeletePlaythrough)
+
+	return s.withCORS(s.withRequestLog(mux))
 }
 
 func (s *Server) handleReady(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +78,78 @@ func (s *Server) handleGetGame(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusNotImplemented, map[string]string{
 		"error": "not implemented",
 		"id":    r.PathValue("id"),
+	})
+}
+
+// Every handler below acts as the one local account. Auth replaces this.
+func (s *Server) accountID() int64 { return playthrough.DevAccountID }
+
+func (s *Server) handleListPlaythroughs(w http.ResponseWriter, r *http.Request) {
+	all, err := s.plays.List(r.Context(), s.accountID())
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "list playthroughs", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not load"})
+		return
+	}
+	writeJSON(w, http.StatusOK, all)
+}
+
+func (s *Server) handleSavePlaythrough(w http.ResponseWriter, r *http.Request) {
+	// Cap the body: an unbounded decode is a memory-exhaustion path.
+	var in playthrough.Input
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&in); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "malformed body"})
+		return
+	}
+
+	saved, err := s.plays.Save(r.Context(), s.accountID(), in)
+	if errors.Is(err, playthrough.ErrInvalid) {
+		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+		return
+	}
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "save playthrough", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not save"})
+		return
+	}
+	writeJSON(w, http.StatusOK, saved)
+}
+
+func (s *Server) handleDeletePlaythrough(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "bad id"})
+		return
+	}
+
+	err = s.plays.Delete(r.Context(), s.accountID(), id)
+	if errors.Is(err, sql.ErrNoRows) {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
+		return
+	}
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "delete playthrough", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not delete"})
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// withCORS exists so Expo's web preview can reach the dev API. It is
+// deliberately wide open, which is fine for a service bound to a laptop and
+// must be narrowed before anything is deployed.
+func (s *Server) withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 

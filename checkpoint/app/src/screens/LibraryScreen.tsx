@@ -20,7 +20,7 @@ export function LibraryScreen() {
   // Playing is the default on purpose: the games you are in the middle of are
   // what you came here for. docs/information-architecture.md section 2.
   const [segment, setSegment] = useState<Segment>('playing');
-  const { all, byStatus } = useLibrary();
+  const { all, byStatus, source, lastError } = useLibrary();
 
   const games: Playthrough[] =
     segment === 'playing'
@@ -34,7 +34,41 @@ export function LibraryScreen() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: space.xl, gap: space.lg }}>
-        <Text style={{ fontSize: 25, fontWeight: '700', color: color.text }}>Library</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Text style={{ fontSize: 25, fontWeight: '700', color: color.text }}>Library</Text>
+          <View style={{ flex: 1 }} />
+          {/* Say where the data came from rather than letting it be ambiguous. */}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              paddingHorizontal: 9,
+              paddingVertical: 5,
+              borderRadius: radius.pill,
+              backgroundColor: color.surface,
+            }}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor:
+                  source === 'server' ? color.active : source === 'offline' ? color.warm : color.textFaint,
+              }}
+            />
+            <Text style={{ fontSize: 10.5, color: color.textDim }}>
+              {source === 'server' ? 'Synced' : source === 'offline' ? 'On this device' : 'Loading'}
+            </Text>
+          </View>
+        </View>
+
+        {lastError !== null && (
+          <Text style={{ fontSize: 11.5, color: color.warm, lineHeight: 17 }}>
+            Saved locally — the server said: {lastError}
+          </Text>
+        )}
 
         <View
           style={{

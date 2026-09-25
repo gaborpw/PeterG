@@ -169,6 +169,23 @@ missing, so a broken link degrades to forgetfulness rather than a crash on boot.
 The first write is deliberately gated on the first read completing — otherwise
 the seed data would overwrite real logs on a slow disk.
 
+## Talking to the API
+
+`src/api.ts` derives the API host from Metro's own bundler URL
+(`NativeModules.SourceCode.scriptURL`), because the app runs on a phone —
+`localhost` there means the phone, not the Mac serving it. No extra package
+needed for this; do not add one.
+
+`src/store.tsx` is server-first with a local fallback: it asks the API, and on
+any failure falls back to the AsyncStorage cache, then to the seed. Saves are
+optimistic — the UI updates immediately and the POST happens in the background,
+surfacing as `lastError` rather than silently vanishing. Library shows which
+source it is on, because "did that save?" should never be a guess.
+
+There is no auth yet, so the API acts as one fixed local account
+(`playthrough.DevAccountID`). Every repo method still takes an accountID, so
+adding sign-in means deleting that constant, not restructuring the queries.
+
 ## Navigation
 
 One native stack: `Tabs`, `Game`, `Log`. Detail screens are pushed rather than

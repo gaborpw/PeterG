@@ -17,6 +17,7 @@ import (
 
 	"gitlab.com/gaborpw/checkpoint/api/internal/config"
 	"gitlab.com/gaborpw/checkpoint/api/internal/httpapi"
+	"gitlab.com/gaborpw/checkpoint/api/internal/playthrough"
 	"gitlab.com/gaborpw/checkpoint/api/internal/store"
 )
 
@@ -49,7 +50,7 @@ func run(log *slog.Logger) error {
 
 	srv := &http.Server{
 		Addr:              cfg.Addr,
-		Handler:           httpapi.New(st, log).Routes(),
+		Handler:           httpapi.New(st, playthrough.NewRepo(st.DB()), log).Routes(),
 		ReadHeaderTimeout: 10 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
