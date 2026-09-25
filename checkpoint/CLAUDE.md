@@ -210,18 +210,28 @@ Route params are the game's title and cover. Adding a screen means adding it to
 
 ## Vocabulary
 
-**A review is the whole entry, not just the prose.** Status, hours, platform,
-rating and — optionally — words. Someone who rated a game ★★★★ and wrote
-nothing has still posted a review, and it still belongs in a feed. Most people
-rate far more often than they write.
+**A log is the thing.** The ➕ button creates one. It is the record of you and a
+game, and it always carries a status:
 
-So: never gate a card, a feed row or a screen on the presence of body text.
-`body` is optional throughout, and the no-text case gets a designed state
-rather than an empty box.
+| Status | Means |
+|---|---|
+| `backlog` | You have it, you have not started |
+| `playing` | In progress |
+| `paused` | Stopped, meaning to return |
+| `finished` | Done |
+| `abandoned` | Stopped, not going back — shown as **Dropped** |
+| `ongoing` | No ending to reach — live service, roguelikes |
+| `wishlist` | You do not have it yet. **In the schema, not yet in the form.** |
 
-The underlying object is still the playthrough (ADR 0002). "Entry" and
-"review" are the words people use for it; `playthrough` is the word the code
-uses.
+A log may also carry hours, a platform, a rating and text.
+
+**"Review" is not a separate object.** It is the informal word for a log,
+usually one with words in it. A log with a rating and no text is still a log
+and still belongs in a feed — most people rate far more often than they write.
+So nothing may gate a card, a feed row or a screen on the presence of body
+text; `body` stays optional and the no-text case gets a designed state.
+
+In code the object is `playthrough` (ADR 0002). Log is what people call it.
 
 ## Cover art
 
