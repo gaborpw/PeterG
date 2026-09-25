@@ -4,7 +4,7 @@ import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
-import { gameStats } from '../data';
+import { aggregateFor, factsFor } from '../data';
 import type { GameScreenProps } from '../navigation';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
@@ -17,10 +17,17 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
 
   const { title, coverUrl } = route.params;
 
-  // Your own playthrough of this game, if you have one. Everything else on the
-  // page is community aggregate and is still sample data.
+  // Your own playthrough of this game, if you have one.
   const yours = all.find((p) => p.title.toLowerCase() === title.toLowerCase());
-  const g = { ...gameStats, title, coverUrl };
+
+  const facts = factsFor(title);
+
+  // Your own log counts towards the game's numbers, but wanting a game is not
+  // playing it — a wishlist entry would drag the median to zero.
+  const agg = aggregateFor(
+    title,
+    all.filter((p) => p.status !== 'wishlist'),
+  );
 
   return (
     <ScrollView
@@ -28,52 +35,113 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
       contentContainerStyle={{ padding: space.xl, gap: space.xxl }}
     >
       <View style={{ flexDirection: 'row', gap: space.lg }}>
-        <Cover title={g.title} url={g.coverUrl} width={100} height={134} />
+        <Cover title={title} url={coverUrl} width={100} height={134} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 27, fontWeight: '700', color: color.text }}>
-            {g.title}
+            {title}
           </Text>
-          <Text style={{ fontSize: 13, color: color.textDim, marginTop: 6 }}>
-            {g.year} · {g.developer}
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 6, marginTop: 10 }}>
-            <Chip label="Action RPG" />
-            <Chip label="Open world" />
-          </View>
-        </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <StatCell label="Avg playtime" value={`${g.medianHours}h`} sub="median to finish" />
-        <StatCell label="Avg rating" value={g.avgRating.toFixed(1)} sub={`${g.ratingCount} ratings`} accent />
-        <StatCell label="Finish rate" value={`${g.finishRate}%`} sub={`of ${g.playthroughs}`} />
-      </View>
-
-      <View>
-        <Text style={{ fontSize: 14, fontWeight: '600', color: color.text, marginBottom: 12 }}>
-          How far people get
-        </Text>
-        <View style={{ gap: 8 }}>
-          {g.funnel.map((row, i) => (
-            <View key={row.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Text style={{ width: 66, fontSize: 11.5, color: color.textDim }}>{row.label}</Text>
-              <View style={{ flex: 1, height: 9, borderRadius: 5, backgroundColor: color.border }}>
-                <View
-                  style={{
-                    width: `${row.pct}%`,
-                    height: 9,
-                    borderRadius: 5,
-                    backgroundColor: i === g.funnel.length - 1 ? color.star : color.active,
-                  }}
-                />
-              </View>
-              <Text style={{ width: 36, textAlign: 'right', fontSize: 11.5, color: color.text }}>
-                {row.pct}%
+          {/* No byline at all beats another game's byline. */}
+          {facts !== undefined && (
+            <>
+              <Text style={{ fontSize: 13, color: color.textDim, marginTop: 6 }}>
+                {facts.year} · {facts.developer}
               </Text>
-            </View>
-          ))}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                {facts.genres.map((genre) => (
+                  <Chip key={genre} label={genre} />
+                ))}
+              </View>
+            </>
+          )}
         </View>
       </View>
+
+      {agg.logs === 0 ? (
+        <View
+          style={{
+            padding: 16,
+            borderRadius: radius.lg,
+            backgroundColor: color.surface,
+            borderWidth: 1,
+            borderColor: color.border,
+            borderStyle: 'dashed',
+          }}
+        >
+          <Text style={{ fontSize: 13, fontWeight: '600', color: color.text }}>
+            No one has logged this yet
+          </Text>
+          <Text style={{ fontSize: 12, color: color.textDim, marginTop: 6, lineHeight: 18 }}>
+            Playtime and ratings appear once there are logs to average.
+          </Text>
+        </View>
+      ) : (
+        <>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <StatCell
+              label="Avg playtime"
+              value={agg.medianHours === undefined ? '—' : `${agg.medianHours}h`}
+              sub={agg.medianHours === undefined ? 'nobody has played it' : 'median logged'}
+            />
+            <StatCell
+              label="Avg rating"
+              value={agg.avgRating === undefined ? '—' : agg.avgRating.toFixed(1)}
+              sub={agg.ratings === 0 ? 'no ratings yet' : plural(agg.ratings, 'rating')}
+              accent
+            />
+            <StatCell
+              label="Finish rate"
+              value={`${agg.finishRate ?? 0}%`}
+              sub={`of ${plural(agg.logs, 'log')}`}
+            />
+          </View>
+
+          {/* Percentages over three logs describe the sample, not the game. */}
+          {agg.funnel !== undefined && (
+            <View>
+              <Text
+                style={{ fontSize: 14, fontWeight: '600', color: color.text, marginBottom: 12 }}
+              >
+                How far people get
+              </Text>
+              <View style={{ gap: 8 }}>
+                {agg.funnel.map((row, i) => (
+                  <View
+                    key={row.label}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                  >
+                    <Text style={{ width: 66, fontSize: 11.5, color: color.textDim }}>
+                      {row.label}
+                    </Text>
+                    <View
+                      style={{ flex: 1, height: 9, borderRadius: 5, backgroundColor: color.border }}
+                    >
+                      <View
+                        style={{
+                          width: `${row.pct}%`,
+                          height: 9,
+                          borderRadius: 5,
+                          backgroundColor:
+                            i === (agg.funnel?.length ?? 0) - 1 ? color.star : color.active,
+                        }}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        width: 36,
+                        textAlign: 'right',
+                        fontSize: 11.5,
+                        color: color.text,
+                      }}
+                    >
+                      {row.pct}%
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </>
+      )}
 
       <View
         style={{
@@ -275,3 +343,5 @@ function StatCell({
     </View>
   );
 }
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
