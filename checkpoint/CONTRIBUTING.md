@@ -1,50 +1,59 @@
-# Contributing
+# Working on Checkpoint
 
-## Branches
+This is a solo project. The conventions below exist to help future-you, not to
+satisfy a reviewer. Keep the ones that earn their place; drop any that turn into
+ceremony.
 
-Cut from `main`. Never commit to `main` directly — it is protected.
+## Branching
 
+Push straight to `main` for ordinary work. You are the only person who can break
+it, and CI tells you within a minute if you did.
+
+Cut a branch when a change is big enough that you might want to abandon it
+halfway:
+
+```sh
+git checkout -b feat/steam-import
 ```
-feat/playthrough-model
-fix/igdb-sync-retry
-docs/adr-rating-scale
-chore/bump-go
-```
+
+Merge it yourself when it works. No merge request needed — though GitLab will
+happily give you one if you want the diff view.
 
 ## Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/). CI rejects anything else.
+Conventional Commits, because it costs nothing and makes `git log` readable in
+six months when you have forgotten all of this:
 
 ```
-feat(api): add playthrough status transitions
-fix(app): keep hours input focused after increment
-docs: record the rating-scale decision as ADR 0003
+feat(app): add the log-a-session sheet
+fix(api): retry IGDB sync on 429
+docs: record the rating-scale decision as ADR 0004
 ```
 
-Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`,
-`chore`, `revert`. Scope is optional and is usually `api`, `app`, `web` or `docs`.
+Types: `feat`, `fix`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`.
+Scope is usually `api`, `app`, `web` or `docs`.
 
-Breaking changes get a `!` before the colon and a `BREAKING CHANGE:` footer.
-
-## Merge requests
-
-1. Push your branch and open an MR against `main`.
-2. Fill in the template — it is short on purpose.
-3. CI must be green. A red pipeline is not a review problem, it is yours.
-4. Squash on merge. The branch name and MR title become the history, so write
-   them like someone will read them in a year.
+CI checks this format on merge requests only, so it never blocks a direct push.
+It is a habit, not a gate.
 
 ## Architecture decisions
 
-Anything that would be annoying to reverse gets an ADR in `docs/adr/`, numbered
-sequentially, in the same format as `0001`. Write it *before* the implementation
-MR, or as its first commit. An ADR is a paragraph of context, the decision, and
-the consequences you accept — not a design doc.
+**This is the convention worth keeping.** Anything you would struggle to explain
+to yourself next year goes in `docs/adr/` — a paragraph of context, the
+decision, and what it costs. Solo projects lose reasoning faster than team ones,
+because nobody ever had to argue for it out loud.
 
-## Local checks
+See `docs/adr/0001` for the shape.
+
+## Before you push
 
 ```sh
 make check
 ```
 
-Run it before pushing. It runs exactly what CI runs.
+Runs exactly what CI runs: gofmt, go vet, go test, and the app's typecheck.
+
+## If someone else ever joins
+
+Turn on protected branches and required merge requests then, not now. The
+templates in `.gitlab/` are already there for that day.

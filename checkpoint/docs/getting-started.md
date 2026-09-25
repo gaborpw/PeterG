@@ -196,21 +196,25 @@ Set `GITLAB_PERSONAL_ACCESS_TOKEN` in your shell profile, not in this file.
 Community servers are third-party code running locally with write access to your
 repositories — read what you are installing first.
 
-## Step 5 — make it a professional repo
+## Step 5 — GitLab settings worth turning on
 
-In your GitLab project's settings:
+This is a solo repo, so most "professional setup" advice is wrong for you.
+Do not protect `main` against your own pushes and do not require merge requests
+— you would be building a gate and then holding the only key.
+
+Worth setting:
 
 | Setting | Where | Value |
 |---|---|---|
-| Protect `main` | Settings → Repository → Protected branches | Allowed to push: **No one**. Allowed to merge: Maintainers |
-| Require a green pipeline | Settings → Merge requests | Tick **Pipelines must succeed** |
-| Squash commits | Settings → Merge requests | **Encourage** or **Require** |
+| Secrets | Settings → CI/CD → Variables | **Masked** and **Protected** |
 | Delete source branch | Settings → Merge requests | Tick the default |
-| Secrets | Settings → CI/CD → Variables | Add as **Masked** and **Protected** |
+| Squash commits | Settings → Merge requests | **Encourage** |
 
-The templates in `.gitlab/` are picked up automatically. `CODEOWNERS` only
-*enforces* review on GitLab Premium and above; on Free it is documentation, which
-is still worth having.
+Leave protected branches alone until someone else has push access.
+
+The MR and issue templates in `.gitlab/` cost nothing and are there for that
+day. `CODEOWNERS` was removed — it only means something with more than one
+owner.
 
 ## Step 6 — check it works
 

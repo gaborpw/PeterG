@@ -41,9 +41,11 @@ add logging UI or authenticated flows there.
 
 ## Conventions
 
+- Solo project. Pushing straight to `main` is the normal path; branch only when
+  a change might get abandoned halfway. Do not propose a merge-request workflow
+  unless asked.
 - Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`).
-  CI lints this on every merge request.
-- Branches: `feat/short-description`, `fix/short-description`.
+  CI checks this on merge requests only, so it never blocks a direct push.
 - Every architectural choice gets an ADR in `docs/adr/`. Copy `0001` as the shape.
 - Secrets never enter the repo. They are GitLab CI/CD variables, masked and
   protected. `.env` is git-ignored and must stay that way.
