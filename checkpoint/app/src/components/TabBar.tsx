@@ -3,9 +3,9 @@ import { color } from '../theme';
 
 export type Tab = 'home' | 'library' | 'log' | 'search' | 'profile';
 
-type Props = { active: Tab; onChange: (t: Tab) => void };
+type Props = { active: Tab; onChange: (t: Tab) => void; bottomInset?: number };
 
-export function TabBar({ active, onChange }: Props) {
+export function TabBar({ active, onChange, bottomInset = 0 }: Props) {
   return (
     <View
       style={{
@@ -14,7 +14,7 @@ export function TabBar({ active, onChange }: Props) {
         borderTopWidth: 1,
         borderTopColor: color.surface2,
         backgroundColor: color.bg,
-        paddingBottom: 18,
+        paddingBottom: Math.max(bottomInset, 10),
         paddingTop: 10,
       }}
     >

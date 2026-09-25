@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { popularThisWeek } from '../data';
@@ -7,6 +8,7 @@ import { color, radius, space } from '../theme';
 
 export function SearchScreen() {
   const [query, setQuery] = useState('');
+  const navigation = useNavigation();
 
   const q = query.trim().toLowerCase();
   const results =
@@ -41,7 +43,12 @@ export function SearchScreen() {
         </Text>
 
         {results.map((g) => (
-          <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 13 }}>
+          <Pressable
+            key={g.id}
+            onPress={() => navigation.navigate('Game', { title: g.title, coverUrl: g.coverUrl })}
+            accessibilityRole="button"
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 13, minHeight: 62 }}
+          >
             <Cover title={g.title} url={g.coverUrl} width={44} height={62} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 14, fontWeight: '500', color: color.text }}>{g.title}</Text>
@@ -52,7 +59,7 @@ export function SearchScreen() {
                 </Text>
               </View>
             </View>
-          </View>
+          </Pressable>
         ))}
 
         {results.length === 0 && (

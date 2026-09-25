@@ -5,13 +5,22 @@ import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { gameStats } from '../data';
+import type { GameScreenProps } from '../navigation';
+import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
-export function GameScreen() {
-  // Progress-aware spoiler gating: the reader is 47h in, so a review written
-  // after finishing stays collapsed until they ask for it. docs/spec.md 3.4.
+export function GameScreen({ route, navigation }: GameScreenProps) {
+  // Progress-aware spoiler gating: a review written past where you have got to
+  // stays collapsed until you ask for it. docs/spec.md 3.4.
   const [revealed, setRevealed] = useState(false);
-  const g = gameStats;
+  const { all } = useLibrary();
+
+  const { title, coverUrl } = route.params;
+
+  // Your own playthrough of this game, if you have one. Everything else on the
+  // page is community aggregate and is still sample data.
+  const yours = all.find((p) => p.title.toLowerCase() === title.toLowerCase());
+  const g = { ...gameStats, title, coverUrl };
 
   return (
     <ScrollView
@@ -72,18 +81,63 @@ export function GameScreen() {
           borderRadius: radius.lg,
           backgroundColor: color.surface,
           borderWidth: 1,
-          borderColor: '#33513F',
+          borderColor: yours === undefined ? color.border : '#33513F',
         }}
       >
-        <Text style={{ fontSize: 10, letterSpacing: 1, color: color.active, fontWeight: '600' }}>
-          YOU ARE PLAYING THIS
-        </Text>
-        <Text style={{ fontSize: 22, fontWeight: '600', color: color.text, marginTop: 9 }}>
-          47<Text style={{ fontSize: 14, color: color.textDim }}>h</Text>
-        </Text>
-        <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 5 }}>
-          PS5 · since 12 Aug · last played Sunday
-        </Text>
+        {yours === undefined ? (
+          <>
+            <Text style={{ fontSize: 13, color: color.textDim, lineHeight: 20 }}>
+              Not in your library yet.
+            </Text>
+            <Pressable
+              onPress={() => navigation.navigate('Log', { title, coverUrl })}
+              accessibilityRole="button"
+              style={{
+                marginTop: 12,
+                minHeight: 46,
+                borderRadius: radius.md,
+                backgroundColor: color.star,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#14120F' }}>
+                Log this game
+              </Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={{ fontSize: 10, letterSpacing: 1, color: color.active, fontWeight: '600' }}>
+              {yours.status.toUpperCase()}
+            </Text>
+            <Text style={{ fontSize: 22, fontWeight: '600', color: color.text, marginTop: 9 }}>
+              {yours.hours}
+              <Text style={{ fontSize: 14, color: color.textDim }}>h</Text>
+            </Text>
+            <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 5 }}>
+              {yours.platform}
+              {yours.lastPlayed !== undefined ? ` · last played ${yours.lastPlayed}` : ''}
+            </Text>
+            <Pressable
+              onPress={() => navigation.navigate('Log', { title, coverUrl })}
+              accessibilityRole="button"
+              style={{
+                marginTop: 12,
+                minHeight: 44,
+                borderRadius: radius.md,
+                borderWidth: 1,
+                borderColor: color.border,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '500', color: color.text }}>
+                Update
+              </Text>
+            </Pressable>
+          </>
+        )}
       </View>
 
       <View>

@@ -3,7 +3,8 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
-import { backlog, finished, mine, type Playthrough } from '../data';
+import { type Playthrough } from '../data';
+import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
 type Segment = 'playing' | 'backlog' | 'finished' | 'all';
@@ -19,15 +20,16 @@ export function LibraryScreen() {
   // Playing is the default on purpose: the games you are in the middle of are
   // what you came here for. docs/information-architecture.md section 2.
   const [segment, setSegment] = useState<Segment>('playing');
+  const { all, byStatus } = useLibrary();
 
   const games: Playthrough[] =
     segment === 'playing'
-      ? mine
+      ? byStatus('playing', 'ongoing')
       : segment === 'backlog'
-        ? backlog
+        ? byStatus('backlog', 'wishlist')
         : segment === 'finished'
-          ? finished
-          : [...mine, ...backlog, ...finished];
+          ? byStatus('finished', 'abandoned', 'paused')
+          : all;
 
   return (
     <View style={{ flex: 1 }}>

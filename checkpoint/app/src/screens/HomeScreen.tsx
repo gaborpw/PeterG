@@ -1,4 +1,5 @@
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Avatar } from '../components/Avatar';
 import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
@@ -11,6 +12,8 @@ const POSTER_W = 112;
 const POSTER_H = 168;
 
 export function HomeScreen() {
+  const navigation = useNavigation();
+
   return (
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: space.xxl }}>
       <View style={{ paddingHorizontal: space.xl, paddingTop: space.lg, paddingBottom: space.xxl }}>
@@ -21,7 +24,13 @@ export function HomeScreen() {
         <SectionHeading title="Popular this week" meta="See all" />
         <PosterRow>
           {popularThisWeek.map((g) => (
-            <View key={g.id} style={{ width: POSTER_W }}>
+            <Pressable
+              key={g.id}
+              onPress={() => navigation.navigate('Game', { title: g.title, coverUrl: g.coverUrl })}
+              accessibilityRole="button"
+              accessibilityLabel={g.title}
+              style={{ width: POSTER_W }}
+            >
               <Cover title={g.title} url={g.coverUrl} width={POSTER_W} height={POSTER_H} />
               <View
                 style={{
@@ -39,7 +48,7 @@ export function HomeScreen() {
               <Text style={{ fontSize: 10.5, color: color.textFaint, marginTop: 3 }}>
                 {g.playersThisWeek} playing
               </Text>
-            </View>
+            </Pressable>
           ))}
         </PosterRow>
       </View>
@@ -48,7 +57,13 @@ export function HomeScreen() {
         <SectionHeading title="Friends are playing" meta={`${friendsPlaying.length} this week`} />
         <PosterRow>
           {friendsPlaying.map((f) => (
-            <View key={f.id} style={{ width: POSTER_W }}>
+            <Pressable
+              key={f.id}
+              onPress={() => navigation.navigate('Game', { title: f.title, coverUrl: f.coverUrl })}
+              accessibilityRole="button"
+              accessibilityLabel={`${f.title}, played by ${f.who}`}
+              style={{ width: POSTER_W }}
+            >
               <View>
                 <Cover title={f.title} url={f.coverUrl} width={POSTER_W} height={POSTER_H} />
                 {/* The friend's mark sits on the poster, the way a Letterboxd
@@ -78,7 +93,7 @@ export function HomeScreen() {
                 </Text>
                 <Text style={{ fontSize: 10.5, color: color.textFaint }}>{f.platform}</Text>
               </View>
-            </View>
+            </Pressable>
           ))}
         </PosterRow>
       </View>
@@ -87,8 +102,10 @@ export function HomeScreen() {
         <SectionHeading title="Popular reviews" meta="This week" />
         <View style={{ paddingHorizontal: space.xl, gap: 11 }}>
           {popularReviews.map((r) => (
-            <View
+            <Pressable
               key={r.id}
+              onPress={() => navigation.navigate('Game', { title: r.title, coverUrl: r.coverUrl })}
+              accessibilityRole="button"
               style={{ padding: 14, borderRadius: 15, backgroundColor: color.surface, gap: 11 }}
             >
               <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -115,7 +132,7 @@ export function HomeScreen() {
                 <Text style={{ fontSize: 11, color: color.textFaint }}>{r.likes} likes</Text>
                 <Text style={{ fontSize: 11, color: color.textFaint }}>{r.comments} comments</Text>
               </View>
-            </View>
+            </Pressable>
           ))}
         </View>
       </View>

@@ -83,6 +83,30 @@ add logging UI or authenticated flows there.
 - Secrets never enter the repo. They are GitLab CI/CD variables, masked and
   protected. `.env` is git-ignored and must stay that way.
 
+## State and persistence
+
+`src/store.tsx` is the only source of truth for playthroughs. Screens call
+`useLibrary()`; nothing reads `src/data.ts` for the user's own games any more
+(it still holds the catalogue and the community sample data).
+
+`src/storage.ts` sits behind it and is the only file that knows about
+AsyncStorage. When the API lands, that file changes and nothing else does. It
+loads the backend lazily and falls back to memory-only if the native module is
+missing, so a broken link degrades to forgetfulness rather than a crash on boot.
+
+The first write is deliberately gated on the first read completing — otherwise
+the seed data would overwrite real logs on a slow disk.
+
+## Navigation
+
+One native stack: `Tabs`, `Game`, `Log`. Detail screens are pushed rather than
+swapped in, which is where back buttons come from. The tab bar lives inside the
+`Tabs` screen and the centre button pushes `Log` instead of switching tabs, so
+logging never costs you the screen you were on.
+
+Route params are the game's title and cover. Adding a screen means adding it to
+`RootStackParamList` in `src/navigation.ts` — that file types the whole graph.
+
 ## Cover art
 
 `app/src/components/Cover.tsx` is the only place a cover is drawn. Everything
