@@ -108,6 +108,10 @@ that writes to local storage and survives a reload. The Go API serves health
 checks and owns the schema, but the two are not connected — every aggregate on
 the game page is still sample data from `app/src/data.ts`.
 
+[`docs/competitors.md`](docs/competitors.md) records where the incumbents leave
+room — the short version is that Backloggd has the community and the catalogue
+but no native app, so the opening is logging speed rather than features.
+
 [`docs/spec.md`](docs/spec.md) is the product argument; read it before proposing
 anything structural, and prefer amending it over inventing a parallel design in
 code. [`docs/information-architecture.md`](docs/information-architecture.md)

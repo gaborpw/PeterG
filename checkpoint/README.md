@@ -11,6 +11,7 @@ wired to the other yet.**
 | Product spec | [`docs/spec.md`](docs/spec.md) |
 | Clickable iOS prototype (source) | [`docs/prototype/`](docs/prototype/) |
 | Information architecture | [`docs/information-architecture.md`](docs/information-architecture.md) |
+| Competitive notes | [`docs/competitors.md`](docs/competitors.md) |
 | Architecture decisions | [`docs/adr/`](docs/adr/) |
 | Setting up locally | [`docs/getting-started.md`](docs/getting-started.md) |
 
