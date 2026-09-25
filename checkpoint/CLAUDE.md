@@ -171,10 +171,18 @@ the seed data would overwrite real logs on a slow disk.
 
 ## Talking to the API
 
-`src/api.ts` derives the API host from Metro's own bundler URL
-(`NativeModules.SourceCode.scriptURL`), because the app runs on a phone —
-`localhost` there means the phone, not the Mac serving it. No extra package
-needed for this; do not add one.
+`src/api.ts` derives the API host from the dev server's own address, because
+the app runs on a phone — `localhost` there means the phone, not the Mac
+serving it. Three sources in order: `EXPO_PUBLIC_API_URL` from `app/.env`,
+then `getDevServer()`, then the legacy `NativeModules.SourceCode`.
+
+`getDevServer()` is the one that works: RN 0.86 runs the New Architecture,
+where `NativeModules.SourceCode` is empty and only the TurboModule spec path
+is populated. That cost an evening once — do not "simplify" it back to
+`NativeModules`. The import is an internal RN path, so it is wrapped in
+try/catch; a rename upstream must degrade to the override, not crash the app.
+
+None of this needs an extra package. Do not add one.
 
 `src/store.tsx` is server-first with a local fallback: it asks the API, and on
 any failure falls back to the AsyncStorage cache, then to the seed. Saves are

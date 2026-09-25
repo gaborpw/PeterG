@@ -66,7 +66,7 @@ export function LibraryScreen() {
 
         {lastError !== null && (
           <Text style={{ fontSize: 11.5, color: color.warm, lineHeight: 17 }}>
-            Saved locally — the server said: {lastError}
+            Saved on this device — {lastError}
           </Text>
         )}
 

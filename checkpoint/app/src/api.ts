@@ -11,21 +11,61 @@ import type { Playthrough, Status } from './data';
 
 const API_PORT = 8080;
 
-function baseUrl(): string {
-  // e.g. "http://192.168.0.200:8081/index.bundle?platform=ios&dev=true"
-  const scriptURL: string | undefined = NativeModules?.SourceCode?.scriptURL;
+/**
+ * Where the API lives.
+ *
+ * The app runs on a phone, so `localhost` would mean the phone rather than the
+ * Mac serving it. The host has to come from the dev server's own address.
+ *
+ * Three sources, in order:
+ *
+ *  1. EXPO_PUBLIC_API_URL — an explicit override. Expo inlines any
+ *     EXPO_PUBLIC_* variable from app/.env at bundle time. This is the escape
+ *     hatch when the automatic paths fail, and the only one that will work in a
+ *     production build, where there is no dev server at all.
+ *  2. getDevServer() — reads scriptURL through the TurboModule spec. This is
+ *     the one that works under the New Architecture, which RN 0.86 uses.
+ *  3. NativeModules.SourceCode — the old-architecture path. Empty under
+ *     bridgeless, kept only for older runtimes.
+ */
+function resolveHost(): string | null {
+  const explicit = process.env.EXPO_PUBLIC_API_URL;
+  if (typeof explicit === 'string' && explicit !== '') return explicit;
 
-  const host = (() => {
-    if (typeof scriptURL === 'string') {
-      const match = /^https?:\/\/([^/:]+)/.exec(scriptURL);
-      if (match !== null) return match[1];
-    }
-    // Web preview, or a production build where Metro is not involved.
-    return Platform.OS === 'web' ? 'localhost' : null;
-  })();
+  const fromUrl = (url: unknown): string | null => {
+    if (typeof url !== 'string') return null;
+    const match = /^https?:\/\/([^/:]+)/.exec(url);
+    return match === null ? null : `http://${match[1]}:${API_PORT}`;
+  };
 
-  if (host === null) return '';
-  return `http://${host}:${API_PORT}`;
+  try {
+    // Internal RN path, so guarded: a rename upstream must not crash the app.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require('react-native/Libraries/Core/Devtools/getDevServer');
+    const getDevServer = (mod.default ?? mod) as () => { url?: string };
+    const host = fromUrl(getDevServer()?.url);
+    if (host !== null) return host;
+  } catch {
+    // fall through
+  }
+
+  const legacy = fromUrl(NativeModules?.SourceCode?.scriptURL);
+  if (legacy !== null) return legacy;
+
+  if (Platform.OS === 'web') return `http://localhost:${API_PORT}`;
+  return null;
+}
+
+let cached: string | null | undefined;
+
+function baseUrl(): string | null {
+  if (cached === undefined) cached = resolveHost();
+  return cached;
+}
+
+/** What the app should tell the user when it cannot find the API. */
+export function apiHost(): string {
+  return baseUrl() ?? 'not found';
 }
 
 export type SaveInput = {
@@ -68,7 +108,11 @@ function fromWire(w: WirePlaythrough): Playthrough {
 /** Short, because an unreachable API should fall back fast, not hang the UI. */
 async function request(path: string, init?: RequestInit): Promise<Response> {
   const url = baseUrl();
-  if (url === '') throw new Error('no API host');
+  if (url === null) {
+    throw new Error(
+      'could not find the API host — set EXPO_PUBLIC_API_URL in app/.env',
+    );
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 4000);
