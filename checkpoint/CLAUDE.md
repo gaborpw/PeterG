@@ -24,23 +24,95 @@ Standing rules for every session here. They outrank convenience.
 6. **Never invent data.** No placeholder ratings, fake hours, or made-up API
    responses presented as real. Sample data lives in `app/src/data.ts` and is
    labelled as sample data.
-7. **Secrets never enter the repo.** Not in code, not in config, not in a
-   commit message, not in `.mcp.json`. `.env` stays git-ignored.
-8. **Explain the trade-off in a sentence.** Every decision costs something. Name
+7. **Explain the trade-off in a sentence.** Every decision costs something. Name
    it. If there is no cost, the decision was obvious and needs no explanation.
-9. **Push back before building.** If the request conflicts with the spec or an
+8. **Push back before building.** If the request conflicts with the spec or an
    ADR, say so first. Peter decides; do not quietly comply with something that
    breaks the playthrough model.
+
+## Certainty and honesty
+
+These are the rules that matter most, because breaking them is invisible until
+it costs something.
+
+9. **Do not guess. Check.** Before changing a file, read it. Before calling a
+   function, read its signature. Before using a library, read what is actually
+   installed in `package.json` — not what you remember the API being. Memory of
+   a library version is not knowledge of it.
+10. **Say exactly what was verified and what was not.** "Typecheck passes" means
+    `tsc --noEmit` was run and exited zero. "Should work" means it was not run —
+    say that, in those words. Never describe an untested change as working, and
+    never let silence imply it was checked.
+11. **Never overstate a source.** If something came from a web search summary
+    rather than the page itself, say so. If a page could not be reached, say it
+    could not be reached rather than answering from memory and hoping. Name the
+    source for any external fact — a version number, an API limit, a platform
+    rule — or say plainly that it is general knowledge and may be stale.
+12. **Cross-check anything expensive to get wrong.** Rate limits, pricing, App
+    Store requirements, security behaviour, data-loss paths: one source is not
+    enough. Two, or an explicit "this needs confirming before you rely on it."
+13. **Report failures as failures.** A command that errored, a test that did not
+    run, a step that was skipped — say it in the first sentence, not buried at
+    the end. Bad news does not improve with delay.
+14. **Correct yourself immediately and plainly.** If something said earlier was
+    wrong, say so in one sentence and move on. No hedging, no burying it.
+
+## Security
+
+Enforced where it can be; the rest is on whoever is writing.
+
+15. **Secrets never enter the repo.** Not in code, not in config, not in a
+    commit message, not in `.mcp.json`, not in a comment, not in a test fixture.
+    `.env` stays git-ignored. GitLab CI has Secret Detection on; treat that as a
+    backstop, not permission to be careless.
+16. **Never print a secret.** Not in logs, not in an error message, not in chat.
+    Say where a credential lives, never what it is.
+17. **Validate at the boundary.** Anything from the network, the filesystem, or
+    another user is untrusted shape until proven otherwise — see the filtering
+    in `src/storage.ts` for the pattern. Parse, do not assume.
+18. **Parameterise every query.** No string-built SQL, ever, including in
+    migrations and scripts. Postgres placeholders only.
+19. **Blocking is a security control, not a feature.** Every query that returns
+    another user's content filters blocked accounts in both directions. Apple
+    requires it (guideline 1.2) and a missed filter is a harassment vector.
+20. **Least privilege on tokens.** A GitLab token gets `write_repository`, not
+    `api`. A Steam key is read-only. Ask why a scope is needed before adding it.
+21. **Do not add a dependency without saying why.** Every package is code
+    running with your privileges. Name what it does, what it replaces, and
+    whether a few lines of our own would do instead.
+
+## Code practices
+
+22. **Match the file you are in.** Its naming, its comment density, its
+    idioms. Consistency across the codebase beats your preference.
+23. **Comment the why, never the what.** `// increment i` is noise. `// the
+    first write waits for the first read so seed data cannot overwrite real
+    logs` is the reason someone keeps the line.
+24. **Types mirror the schema.** `app/src/data.ts` unions and the enums in
+    `api/migrations/` are one definition in two languages. Change one, change
+    the other in the same commit. TypeScript already caught this drift once.
+25. **One source of truth per concept.** Playthroughs live in `src/store.tsx`.
+    Colours live in `src/theme.ts`. Persistence lives in `src/storage.ts`. If
+    you need a second place, that is a design problem, not a shortcut.
+26. **No dead code and no commented-out code.** Git remembers it. Delete it.
+27. **Handle the failure path.** Every `await` can reject, every read can come
+    back empty, every image URL can 404. An unhandled path is a crash waiting
+    for a bad network.
 
 ## What this is
 
 Checkpoint — a games equivalent of Letterboxd.
-[`docs/information-architecture.md`](docs/information-architecture.md) holds the
-tab structure, the screen inventory and the per-screen work breakdown — read it
-before adding a screen or moving something between tabs. Right now it is a specification
-and a prototype; there is no application code yet. Read
-[`docs/spec.md`](docs/spec.md) before proposing anything structural, and prefer
-amending the spec over inventing a parallel design in code.
+
+The Expo app runs and is usable: five tabs, navigation with back, a log form
+that writes to local storage and survives a reload. The Go API serves health
+checks and owns the schema, but the two are not connected — every aggregate on
+the game page is still sample data from `app/src/data.ts`.
+
+[`docs/spec.md`](docs/spec.md) is the product argument; read it before proposing
+anything structural, and prefer amending it over inventing a parallel design in
+code. [`docs/information-architecture.md`](docs/information-architecture.md)
+holds the tab structure, the screen inventory and the per-screen work breakdown
+— read it before adding a screen or moving something between tabs.
 
 ## The one idea that must not get lost
 
