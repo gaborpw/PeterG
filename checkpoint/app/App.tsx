@@ -51,9 +51,9 @@ export default function App() {
             <Stack.Screen
               name="Playthrough"
               component={PlaythroughScreen}
-              options={{ title: 'Your entry' }}
+              options={{ headerShown: false }}
             />
-            <Stack.Screen name="Entry" component={EntryScreen} options={{ title: 'Entry' }} />
+            <Stack.Screen name="Entry" component={EntryScreen} options={{ headerShown: false }} />
             <Stack.Screen
               name="Log"
               component={LogScreen}

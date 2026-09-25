@@ -19,6 +19,8 @@ export type Playthrough = {
   title: string;
   /** Remote cover art. Filled by the IGDB mirror; undefined falls back. */
   coverUrl?: string;
+  /** Wide atmospheric art, for screen headers. Optional everywhere. */
+  backdropUrl?: string;
   platform: string;
   status: Status;
   hours: number;
@@ -164,6 +166,9 @@ export type CommunityReview = {
   tint: string;
   title: string;
   coverUrl?: string;
+  backdropUrl?: string;
+  /** When they logged it. Serializd gives this real prominence and it earns it. */
+  loggedOn: string;
   rating: number;
   liked: boolean;
   status: Status;
@@ -179,7 +184,7 @@ export type CommunityReview = {
 /** Popular reviews across everyone. Home's third row. */
 export const popularReviews: CommunityReview[] = [
   {
-    id: 'r1',
+    id: 'r1', loggedOn: '24 Sep 2026',
     who: 'Nadia', initials: 'NV', tint: '#3A3346',
     title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg',
     rating: 4.5, liked: true, status: 'finished', hours: 41, context: 'finished · 41h',
@@ -187,7 +192,7 @@ export const popularReviews: CommunityReview[] = [
     likes: 842, comments: 63,
   },
   {
-    id: 'r2',
+    id: 'r2', loggedOn: '22 Sep 2026',
     who: 'Theo', initials: 'TM', tint: '#46342E',
     title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg',
     rating: 5, liked: true, status: 'finished', hours: 34, context: '100% · 34h',
@@ -195,7 +200,7 @@ export const popularReviews: CommunityReview[] = [
     likes: 611, comments: 94,
   },
   {
-    id: 'r3',
+    id: 'r3', loggedOn: '19 Sep 2026',
     who: 'Iris', initials: 'IK', tint: '#2E4640',
     title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg',
     rating: 4, liked: false, status: 'abandoned', hours: 22, context: 'dropped at 22h',
@@ -203,7 +208,7 @@ export const popularReviews: CommunityReview[] = [
     likes: 508, comments: 121,
   },
   {
-    id: 'r4',
+    id: 'r4', loggedOn: '25 Sep 2026',
     who: 'Owen', initials: 'OB', tint: '#2E3A46',
     title: 'Balatro',
     rating: 4.5, liked: true, status: 'ongoing', hours: 63,

@@ -12,6 +12,7 @@ wired to the other yet.**
 | Clickable iOS prototype (source) | [`docs/prototype/`](docs/prototype/) |
 | Information architecture | [`docs/information-architecture.md`](docs/information-architecture.md) |
 | Competitive notes | [`docs/competitors.md`](docs/competitors.md) |
+| Running it locally | [`docs/running-locally.md`](docs/running-locally.md) |
 | Architecture decisions | [`docs/adr/`](docs/adr/) |
 | Setting up locally | [`docs/getting-started.md`](docs/getting-started.md) |
 

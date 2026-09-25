@@ -16,6 +16,12 @@ const DATA = new URL('../src/data.ts', import.meta.url);
 const ART = (id) =>
   `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`;
 
+// The wide atmospheric image Steam uses behind a game's library page. Bigger
+// and better framed than header.jpg for a screen backdrop. Not every app has
+// one — the app falls back rather than showing a broken image.
+const BACKDROP = (id) =>
+  `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_hero.jpg`;
+
 /** Ask Steam for the best match, and make sure it really is a match. */
 async function findAppId(title) {
   const url =
@@ -70,7 +76,10 @@ for (const title of titles) {
     const escaped = title.replace(/'/g, "\\'").replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const pattern = new RegExp(`(title:\\s*'${escaped}',)(?!\\s*coverUrl)`, 'g');
     const before = out;
-    out = out.replace(pattern, `$1 coverUrl: '${ART(id)}',`);
+    out = out.replace(
+      pattern,
+      `$1 coverUrl: '${ART(id)}', backdropUrl: '${BACKDROP(id)}',`,
+    );
 
     if (out === before) console.log(`${id} (already had one)`);
     else {
@@ -87,7 +96,7 @@ for (const title of titles) {
 
 if (filled > 0) {
   await writeFile(DATA, out);
-  console.log(`\nWrote ${filled} cover URLs into src/data.ts.`);
+  console.log(`\nWrote ${filled} cover and backdrop URLs into src/data.ts.`);
   console.log('Reload the app — real box art everywhere.');
 } else {
   console.log('\nNothing to add; every title already had a cover or is not on Steam.');
