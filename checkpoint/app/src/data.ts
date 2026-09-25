@@ -101,7 +101,7 @@ export const finished: Playthrough[] = [
 
 export const friendsPlaying: FriendActivity[] = [
   { id: 'f1', who: 'Mia', initials: 'MK', tint: '#2E4640', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_hero.jpg', platform: 'Switch 2', hours: 12, lastSession: '2h yesterday' },
-  { id: 'f2', who: 'Dev', initials: 'DA', tint: '#3A3346', title: "Baldur's Gate 3", platform: 'PC', hours: 71, lastSession: '4h today' },
+  { id: 'f2', who: 'Dev', initials: 'DA', tint: '#3A3346', title: "Baldur's Gate 3", coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_hero.jpg', platform: 'PC', hours: 71, lastSession: '4h today' },
   { id: 'f3', who: 'Sam', initials: 'SR', tint: '#46342E', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_hero.jpg', platform: 'PC', hours: 26, lastSession: '1h today' },
   { id: 'f4', who: 'Rae', initials: 'RL', tint: '#2E3A46', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_hero.jpg', platform: 'PS5', hours: 38, lastSession: '3h Sunday' },
   { id: 'f5', who: 'Jon', initials: 'JT', tint: '#2E3A46', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_hero.jpg', platform: 'PS5', hours: 31, lastSession: '2h Saturday' },
@@ -151,7 +151,7 @@ export const popularThisWeek: PopularGame[] = [
   { id: 'g1', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_hero.jpg', avgRating: 4.6, playersThisWeek: '18.2k' },
   { id: 'g2', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_hero.jpg', avgRating: 4.4, playersThisWeek: '14.9k' },
   { id: 'g3', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_hero.jpg', avgRating: 4.3, playersThisWeek: '11.4k' },
-  { id: 'g4', title: "Baldur's Gate 3", avgRating: 4.7, playersThisWeek: '9.8k' },
+  { id: 'g4', title: "Baldur's Gate 3", coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_hero.jpg', avgRating: 4.7, playersThisWeek: '9.8k' },
   { id: 'g5', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_hero.jpg', avgRating: 4.2, playersThisWeek: '7.1k' },
   { id: 'g6', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_hero.jpg', avgRating: 4.5, playersThisWeek: '6.6k' },
   { id: 'g7', title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_hero.jpg', avgRating: 4.4, playersThisWeek: '5.9k' },
@@ -213,7 +213,7 @@ export const popularReviews: CommunityReview[] = [
   {
     id: 'r4', loggedOn: '25 Sep 2026',
     who: 'Owen', initials: 'OB', tint: '#2E3A46',
-    title: 'Balatro',
+    title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_hero.jpg',
     rating: 4.5, liked: true, status: 'ongoing', hours: 63,
     context: 'ongoing · 63h',
     likes: 297, comments: 12,
