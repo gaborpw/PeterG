@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 )
@@ -30,8 +31,12 @@ type Config struct {
 	ShutdownTimeout time.Duration
 }
 
-// Load reads configuration from the environment.
+// Load reads configuration from the environment, after folding in a .env file
+// if one sits beside the binary or one directory up. Real environment variables
+// always win.
 func Load() (Config, error) {
+	loadDotEnv(".env", filepath.Join("..", ".env"))
+
 	c := Config{
 		Addr:             envOr("CHECKPOINT_ADDR", ":8080"),
 		DatabaseURL:      os.Getenv("DATABASE_URL"),
