@@ -1,6 +1,36 @@
 # CLAUDE.md
 
-Guidance for Claude Code sessions working in this repository.
+Guidance for Claude Code sessions working in this repository. Read on every
+prompt, automatically.
+
+## Rules
+
+Standing rules for every session here. They outrank convenience.
+
+1. **Show the change before making it.** Propose the edit, wait for a yes. The
+   before/after diff comes from `.claude/settings.json`
+   (`permissions.defaultMode: "default"`) — that file enforces it; this rule
+   means don't route around it by piping a heredoc through Bash.
+2. **One change at a time.** A refactor and a feature are two approvals, not
+   one. If a task needs five files touched, say so first and get agreement on
+   the shape before touching any of them.
+3. **Run `make check` before saying it works.** "It should work" is not a
+   report. If it was not run, say it was not run.
+4. **Do what was asked.** No extra features, no drive-by renames, no
+   reorganising files that were not part of the task. Notice something worth
+   fixing — say so, do not fix it.
+5. **Say when you are unsure.** A guess presented confidently costs more than a
+   question. Flag assumptions at the point they are made, not at the end.
+6. **Never invent data.** No placeholder ratings, fake hours, or made-up API
+   responses presented as real. Sample data lives in `app/src/data.ts` and is
+   labelled as sample data.
+7. **Secrets never enter the repo.** Not in code, not in config, not in a
+   commit message, not in `.mcp.json`. `.env` stays git-ignored.
+8. **Explain the trade-off in a sentence.** Every decision costs something. Name
+   it. If there is no cost, the decision was obvious and needs no explanation.
+9. **Push back before building.** If the request conflicts with the spec or an
+   ADR, say so first. Peter decides; do not quietly comply with something that
+   breaks the playthrough model.
 
 ## What this is
 
