@@ -104,7 +104,7 @@ export function HomeScreen() {
           {popularReviews.map((r) => (
             <Pressable
               key={r.id}
-              onPress={() => navigation.navigate('Game', { title: r.title, coverUrl: r.coverUrl })}
+              onPress={() => navigation.navigate('Entry', { id: r.id })}
               accessibilityRole="button"
               style={{ padding: 14, borderRadius: 15, backgroundColor: color.surface, gap: 11 }}
             >
@@ -126,7 +126,9 @@ export function HomeScreen() {
                 </View>
               </View>
 
-              <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>{r.body}</Text>
+              {r.body !== undefined && (
+                <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>{r.body}</Text>
+              )}
 
               <View style={{ flexDirection: 'row', gap: 16 }}>
                 <Text style={{ fontSize: 11, color: color.textFaint }}>{r.likes} likes</Text>

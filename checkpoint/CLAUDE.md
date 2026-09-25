@@ -208,6 +208,21 @@ logging never costs you the screen you were on.
 Route params are the game's title and cover. Adding a screen means adding it to
 `RootStackParamList` in `src/navigation.ts` — that file types the whole graph.
 
+## Vocabulary
+
+**A review is the whole entry, not just the prose.** Status, hours, platform,
+rating and — optionally — words. Someone who rated a game ★★★★ and wrote
+nothing has still posted a review, and it still belongs in a feed. Most people
+rate far more often than they write.
+
+So: never gate a card, a feed row or a screen on the presence of body text.
+`body` is optional throughout, and the no-text case gets a designed state
+rather than an empty box.
+
+The underlying object is still the playthrough (ADR 0002). "Entry" and
+"review" are the words people use for it; `playthrough` is the word the code
+uses.
+
 ## Cover art
 
 `app/src/components/Cover.tsx` is the only place a cover is drawn. Everything

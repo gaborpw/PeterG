@@ -5,6 +5,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import type { RootStackParamList } from './src/navigation';
 import { GameScreen } from './src/screens/GameScreen';
 import { LogScreen } from './src/screens/LogScreen';
+import { EntryScreen } from './src/screens/EntryScreen';
 import { PlaythroughScreen } from './src/screens/PlaythroughScreen';
 import { TabsScreen } from './src/screens/TabsScreen';
 import { LibraryProvider } from './src/store';
@@ -52,6 +53,7 @@ export default function App() {
               component={PlaythroughScreen}
               options={{ title: 'Your entry' }}
             />
+            <Stack.Screen name="Entry" component={EntryScreen} options={{ title: 'Entry' }} />
             <Stack.Screen
               name="Log"
               component={LogScreen}

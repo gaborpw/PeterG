@@ -152,6 +152,11 @@ export const popularThisWeek: PopularGame[] = [
   { id: 'g7', title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', avgRating: 4.4, playersThisWeek: '5.9k' },
 ];
 
+/**
+ * Someone else's log of a game. "Review" means the whole entry — status,
+ * hours, rating and optionally words — not just the prose. An entry with no
+ * text is still a review; plenty of people rate without writing.
+ */
 export type CommunityReview = {
   id: string;
   who: string;
@@ -161,9 +166,12 @@ export type CommunityReview = {
   coverUrl?: string;
   rating: number;
   liked: boolean;
+  status: Status;
+  hours: number;
   /** How far in they were — drives the spoiler gate. */
   context: string;
-  body: string;
+  /** Optional. An entry with a rating and no words is still an entry. */
+  body?: string;
   likes: number;
   comments: number;
 };
@@ -174,7 +182,7 @@ export const popularReviews: CommunityReview[] = [
     id: 'r1',
     who: 'Nadia', initials: 'NV', tint: '#3A3346',
     title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg',
-    rating: 4.5, liked: true, context: 'finished · 41h',
+    rating: 4.5, liked: true, status: 'finished', hours: 41, context: 'finished · 41h',
     body: 'Every boss taught me something I did not know I was being taught. The difficulty is not cruelty, it is tuition.',
     likes: 842, comments: 63,
   },
@@ -182,7 +190,7 @@ export const popularReviews: CommunityReview[] = [
     id: 'r2',
     who: 'Theo', initials: 'TM', tint: '#46342E',
     title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg',
-    rating: 5, liked: true, context: '100% · 34h',
+    rating: 5, liked: true, status: 'finished', hours: 34, context: '100% · 34h',
     body: 'I have not taken notes on paper for a game since I was twelve. Three pages in and I understood what it wanted from me.',
     likes: 611, comments: 94,
   },
@@ -190,9 +198,17 @@ export const popularReviews: CommunityReview[] = [
     id: 'r3',
     who: 'Iris', initials: 'IK', tint: '#2E4640',
     title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg',
-    rating: 4, liked: false, context: 'dropped at 22h',
+    rating: 4, liked: false, status: 'abandoned', hours: 22, context: 'dropped at 22h',
     body: 'Beautiful, and I bounced. The calendar pressure turned a fantasy into a scheduling problem I already have at work.',
     likes: 508, comments: 121,
+  },
+  {
+    id: 'r4',
+    who: 'Owen', initials: 'OB', tint: '#2E3A46',
+    title: 'Balatro',
+    rating: 4.5, liked: true, status: 'ongoing', hours: 63,
+    context: 'ongoing · 63h',
+    likes: 297, comments: 12,
   },
 ];
 

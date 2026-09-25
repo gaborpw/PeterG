@@ -10,11 +10,14 @@ export type RootStackParamList = {
   Game: { title: string; coverUrl?: string };
   /** One of your own playthroughs, by store id. */
   Playthrough: { id: string };
+  /** Somebody else's entry, by id. */
+  Entry: { id: string };
   Log: { title?: string; coverUrl?: string; editId?: string } | undefined;
 };
 
 export type GameScreenProps = NativeStackScreenProps<RootStackParamList, 'Game'>;
 export type PlaythroughScreenProps = NativeStackScreenProps<RootStackParamList, 'Playthrough'>;
+export type EntryScreenProps = NativeStackScreenProps<RootStackParamList, 'Entry'>;
 export type LogScreenProps = NativeStackScreenProps<RootStackParamList, 'Log'>;
 
 declare global {
