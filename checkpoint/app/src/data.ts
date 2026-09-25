@@ -1,7 +1,18 @@
 // Sample data standing in for the API. Shapes mirror docs/spec.md section 4, so
 // swapping this for real fetches does not move the screens around.
 
-export type Status = 'playing' | 'finished' | 'paused' | 'abandoned' | 'ongoing';
+/**
+ * The seven playthrough states. Mirrors the playthrough_status enum in
+ * api/migrations/0001_init.sql — keep them in step.
+ */
+export type Status =
+  | 'wishlist'
+  | 'backlog'
+  | 'playing'
+  | 'paused'
+  | 'finished'
+  | 'abandoned'
+  | 'ongoing';
 
 export type Playthrough = {
   id: string;
@@ -67,6 +78,21 @@ export const mine: Playthrough[] = [
   },
 ];
 
+/** Backlog and finished, so Library's segments have something in them. */
+export const backlog: Playthrough[] = [
+  { id: 'b1', title: 'Blue Prince', platform: 'PC', status: 'backlog', hours: 0 },
+  { id: 'b2', title: 'Pentiment', platform: 'Xbox', status: 'backlog', hours: 0 },
+  { id: 'b3', title: 'Citizen Sleeper 2', platform: 'Switch', status: 'backlog', hours: 0 },
+  { id: 'b4', title: 'Signalis', platform: 'PC', status: 'backlog', hours: 0 },
+];
+
+export const finished: Playthrough[] = [
+  { id: 'd1', title: 'Outer Wilds', platform: 'PC', status: 'finished', hours: 27, rating: 5, liked: true },
+  { id: 'd2', title: 'Disco Elysium', platform: 'PC', status: 'finished', hours: 41, rating: 5, liked: true },
+  { id: 'd3', title: 'Return of the Obra Dinn', platform: 'Switch', status: 'finished', hours: 9, rating: 4.5 },
+  { id: 'd4', title: 'Starfield', platform: 'PC', status: 'abandoned', hours: 9, rating: 2, droppedAtHour: 9 },
+];
+
 export const friendsPlaying: FriendActivity[] = [
   { id: 'f1', who: 'Mia', initials: 'MK', tint: '#2E4640', title: 'Hollow Knight: Silksong', platform: 'Switch 2', hours: 12, lastSession: '2h yesterday' },
   { id: 'f2', who: 'Dev', initials: 'DA', tint: '#3A3346', title: "Baldur's Gate 3", platform: 'PC', hours: 71, lastSession: '4h today' },
@@ -102,6 +128,26 @@ export const feed: FeedEntry[] = [
     tags: ['PC', 'no review'],
     when: 'Sunday',
   },
+];
+
+export type PopularGame = {
+  id: string;
+  title: string;
+  coverUrl?: string;
+  avgRating: number;
+  /** People who logged a session this week. */
+  playersThisWeek: string;
+};
+
+/** Popular this week, across everyone. The home screen's first row. */
+export const popularThisWeek: PopularGame[] = [
+  { id: 'g1', title: 'Hollow Knight: Silksong', avgRating: 4.6, playersThisWeek: '18.2k' },
+  { id: 'g2', title: 'Elden Ring', avgRating: 4.4, playersThisWeek: '14.9k' },
+  { id: 'g3', title: 'Blue Prince', avgRating: 4.3, playersThisWeek: '11.4k' },
+  { id: 'g4', title: 'Baldur\u2019s Gate 3', avgRating: 4.7, playersThisWeek: '9.8k' },
+  { id: 'g5', title: 'Metaphor: ReFantazio', avgRating: 4.2, playersThisWeek: '7.1k' },
+  { id: 'g6', title: 'Hades II', avgRating: 4.5, playersThisWeek: '6.6k' },
+  { id: 'g7', title: 'Balatro', avgRating: 4.4, playersThisWeek: '5.9k' },
 ];
 
 /** Aggregates for the game page. Computed server-side in the real thing. */
