@@ -1,0 +1,14 @@
+# Claude Code writes local permission decisions here. They are per-machine and
+# must not be shared — checkpoint/.gitignore covers its own copy, but the
+# repository root had nothing, so the root one was being committed.
+.claude/settings.local.json
+
+# Environment and credentials, at any depth.
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+
+# macOS
+.DS_Store
