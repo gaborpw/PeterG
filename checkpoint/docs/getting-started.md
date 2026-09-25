@@ -121,6 +121,81 @@ first time you open the folder. Say yes. If you miss the prompt: `Ctrl+Shift+P` 
 Sign GitLab Workflow in when it asks: it will offer OAuth in a browser, which is
 the easiest route.
 
+## Step 4a — give Claude access to GitLab
+
+GitLab runs an **official remote MCP server**, so a local Claude Code session can
+read and act on your merge requests, issues and pipelines directly. This has
+nothing to do with the claude.ai connector directory — Claude Code adds MCP
+servers itself.
+
+This repository already carries the config, in `.mcp.json` at the root:
+
+```json
+{
+  "mcpServers": {
+    "gitlab": {
+      "type": "http",
+      "url": "https://gitlab.com/api/v4/mcp"
+    }
+  }
+}
+```
+
+Because it is project-scoped and committed, Claude Code picks it up when you run
+it in this folder. The first time it does, it asks you to approve the server —
+that prompt exists so a repository you clone cannot wire up a server behind your
+back. Approve it, then authorize in the browser window GitLab opens. Credentials
+are reused after that.
+
+Check it worked:
+
+```
+/mcp
+```
+
+`gitlab` should be listed as connected.
+
+**Self-managed GitLab:** swap `gitlab.com` for your host. The path stays
+`/api/v4/mcp`.
+
+**Extra toolsets:** some are opt-in rather than exposed by default. Add a header
+to turn them on:
+
+```sh
+claude mcp add -s user --transport http gitlab https://gitlab.com/api/v4/mcp \
+  --header "X-Gitlab-Enabled-Mcp-Server-Toolsets: core,work_items"
+```
+
+### If your GitLab tier does not include it
+
+The MCP server is reported to require **Premium or Ultimate**. On Free it may not
+be available — confirm against
+https://docs.gitlab.com/user/model_context_protocol/mcp_server/ before assuming
+either way.
+
+If it is not available to you, a community server works against the ordinary
+GitLab REST API on any tier, authenticated with a personal access token. Use
+environment-variable expansion so the token never lands in git:
+
+```json
+{
+  "mcpServers": {
+    "gitlab": {
+      "command": "npx",
+      "args": ["-y", "@zereight/mcp-gitlab"],
+      "env": {
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_PERSONAL_ACCESS_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.com/api/v4"
+      }
+    }
+  }
+}
+```
+
+Set `GITLAB_PERSONAL_ACCESS_TOKEN` in your shell profile, not in this file.
+Community servers are third-party code running locally with write access to your
+repositories — read what you are installing first.
+
 ## Step 5 — make it a professional repo
 
 In your GitLab project's settings:

@@ -55,6 +55,17 @@ add logging UI or authenticated flows there.
 - **PSN and Xbox imports use unofficial endpoints.** Isolate them behind one
   interface; a sync failure must never degrade the core product.
 
+## GitLab access
+
+`.mcp.json` wires up GitLab's official remote MCP server
+(`https://gitlab.com/api/v4/mcp`), so a local session can read merge requests,
+issues and pipelines. Approve it when Claude Code prompts, then authorize in the
+browser. `/mcp` shows whether it connected. Setup and the Free-tier fallback are
+in [`docs/getting-started.md`](docs/getting-started.md).
+
+Never put a token in `.mcp.json`. Use `${VAR}` expansion and set the variable in
+your shell.
+
 ## Before you push
 
 ```sh
