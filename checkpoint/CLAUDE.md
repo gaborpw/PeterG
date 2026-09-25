@@ -4,7 +4,10 @@ Guidance for Claude Code sessions working in this repository.
 
 ## What this is
 
-Checkpoint — a games equivalent of Letterboxd. Right now it is a specification
+Checkpoint — a games equivalent of Letterboxd.
+[`docs/information-architecture.md`](docs/information-architecture.md) holds the
+tab structure, the screen inventory and the per-screen work breakdown — read it
+before adding a screen or moving something between tabs. Right now it is a specification
 and a prototype; there is no application code yet. Read
 [`docs/spec.md`](docs/spec.md) before proposing anything structural, and prefer
 amending the spec over inventing a parallel design in code.
