@@ -21,8 +21,8 @@ export function TabBar({ active, onChange }: Props) {
       <Slot tab="home" label="Home" active={active} onChange={onChange}>
         <HomeIcon on={active === 'home'} />
       </Slot>
-      <Slot tab="library" label="Library" active={active} onChange={onChange}>
-        <LibraryIcon on={active === 'library'} />
+      <Slot tab="search" label="Search" active={active} onChange={onChange}>
+        <SearchIcon on={active === 'search'} />
       </Slot>
 
       <Pressable
@@ -45,8 +45,8 @@ export function TabBar({ active, onChange }: Props) {
         </View>
       </Pressable>
 
-      <Slot tab="search" label="Search" active={active} onChange={onChange}>
-        <SearchIcon on={active === 'search'} />
+      <Slot tab="library" label="Library" active={active} onChange={onChange}>
+        <LibraryIcon on={active === 'library'} />
       </Slot>
       <Slot tab="profile" label="Profile" active={active} onChange={onChange}>
         <ProfileIcon on={active === 'profile'} />

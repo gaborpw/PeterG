@@ -4,7 +4,7 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { Stars } from '../components/Stars';
-import { friendsPlaying, popularThisWeek } from '../data';
+import { friendsPlaying, popularReviews, popularThisWeek } from '../data';
 import { color, space } from '../theme';
 
 const POSTER_W = 112;
@@ -44,7 +44,7 @@ export function HomeScreen() {
         </PosterRow>
       </View>
 
-      <View>
+      <View style={{ marginBottom: 30 }}>
         <SectionHeading title="Friends are playing" meta={`${friendsPlaying.length} this week`} />
         <PosterRow>
           {friendsPlaying.map((f) => (
@@ -73,7 +73,7 @@ export function HomeScreen() {
                 {f.who}
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                <Text style={{ fontSize: 11.5, fontWeight: '600', color: color.active }}>
+                <Text style={{ fontSize: 11.5, fontWeight: '600', color: color.star }}>
                   {f.hours}h
                 </Text>
                 <Text style={{ fontSize: 10.5, color: color.textFaint }}>{f.platform}</Text>
@@ -82,6 +82,57 @@ export function HomeScreen() {
           ))}
         </PosterRow>
       </View>
+
+      <View>
+        <SectionHeading title="Popular reviews" meta="This week" />
+        <View style={{ paddingHorizontal: space.xl, gap: 11 }}>
+          {popularReviews.map((r) => (
+            <View
+              key={r.id}
+              style={{ padding: 14, borderRadius: 15, backgroundColor: color.surface, gap: 11 }}
+            >
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Cover title={r.title} url={r.coverUrl} width={44} height={62} />
+                <View style={{ flex: 1 }}>
+                  <Text numberOfLines={1} style={{ fontSize: 14, fontWeight: '600', color: color.text }}>
+                    {r.title}
+                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 7 }}>
+                    <Avatar initials={r.initials} tint={r.tint} size={20} />
+                    <Text style={{ fontSize: 12, color: color.textDim }}>{r.who}</Text>
+                    <Stars value={r.rating} size={11} />
+                    {r.liked && <Heart />}
+                  </View>
+                  <Text style={{ fontSize: 10.5, color: color.textFaint, marginTop: 6 }}>
+                    {r.context}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>{r.body}</Text>
+
+              <View style={{ flexDirection: 'row', gap: 16 }}>
+                <Text style={{ fontSize: 11, color: color.textFaint }}>{r.likes} likes</Text>
+                <Text style={{ fontSize: 11, color: color.textFaint }}>{r.comments} comments</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
     </ScrollView>
+  );
+}
+
+function Heart() {
+  return (
+    <View
+      style={{
+        width: 9,
+        height: 9,
+        backgroundColor: color.warm,
+        borderRadius: 2,
+        transform: [{ rotate: '45deg' }],
+      }}
+    />
   );
 }

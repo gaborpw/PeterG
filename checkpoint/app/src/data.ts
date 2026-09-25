@@ -150,6 +150,50 @@ export const popularThisWeek: PopularGame[] = [
   { id: 'g7', title: 'Balatro', avgRating: 4.4, playersThisWeek: '5.9k' },
 ];
 
+export type CommunityReview = {
+  id: string;
+  who: string;
+  initials: string;
+  tint: string;
+  title: string;
+  coverUrl?: string;
+  rating: number;
+  liked: boolean;
+  /** How far in they were — drives the spoiler gate. */
+  context: string;
+  body: string;
+  likes: number;
+  comments: number;
+};
+
+/** Popular reviews across everyone. Home's third row. */
+export const popularReviews: CommunityReview[] = [
+  {
+    id: 'r1',
+    who: 'Nadia', initials: 'NV', tint: '#3A3346',
+    title: 'Hollow Knight: Silksong',
+    rating: 4.5, liked: true, context: 'finished · 41h',
+    body: 'Every boss taught me something I did not know I was being taught. The difficulty is not cruelty, it is tuition.',
+    likes: 842, comments: 63,
+  },
+  {
+    id: 'r2',
+    who: 'Theo', initials: 'TM', tint: '#46342E',
+    title: 'Blue Prince',
+    rating: 5, liked: true, context: '100% · 34h',
+    body: 'I have not taken notes on paper for a game since I was twelve. Three pages in and I understood what it wanted from me.',
+    likes: 611, comments: 94,
+  },
+  {
+    id: 'r3',
+    who: 'Iris', initials: 'IK', tint: '#2E4640',
+    title: 'Metaphor: ReFantazio',
+    rating: 4, liked: false, context: 'dropped at 22h',
+    body: 'Beautiful, and I bounced. The calendar pressure turned a fantasy into a scheduling problem I already have at work.',
+    likes: 508, comments: 121,
+  },
+];
+
 /** Aggregates for the game page. Computed server-side in the real thing. */
 export const gameStats = {
   title: 'Elden Ring',
