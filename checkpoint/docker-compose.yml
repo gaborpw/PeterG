@@ -1,0 +1,22 @@
+# Local Postgres for development. Nothing else belongs in here: the API runs
+# from your terminal so you keep a debugger and fast rebuilds.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: checkpoint
+      POSTGRES_USER: checkpoint
+      POSTGRES_PASSWORD: checkpoint
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./api/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U checkpoint -d checkpoint"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -20,14 +20,20 @@ breaks replays, per-platform opinions and progress-gated spoilers at the same
 time. If a change seems to need it, that is a spec discussion, not an
 implementation detail.
 
-## Planned layout
+## Layout
 
 | Path | Responsibility |
 |---|---|
-| `api/` | Go service: HTTP handlers, Postgres, IGDB mirror, import workers |
-| `app/` | Expo / React Native client, iOS first |
-| `web/` | Next.js public read-only pages (game pages, reviews, profiles) |
+| `api/` | Go service. `cmd/checkpointd` wires it up; `internal/` holds config, httpapi, store. Migrations in `api/migrations/`. |
+| `app/` | Expo / React Native client, iOS first. Screens in `src/screens/`, shared UI in `src/components/`, tokens in `src/theme.ts`. |
+| `web/` | Next.js public read-only pages. Not built — M5. |
 | `docs/` | Spec, ADRs, prototype source |
+
+`app/src/data.ts` is sample data standing in for the API. Its types mirror the
+schema, so replacing it with real fetches should not move the screens around.
+
+Handlers in `internal/httpapi` do transport work only — decode, call inward,
+encode. Domain logic gets its own package so it is testable without a request.
 
 `web/` exists for one reason: an indexable page per game is the main acquisition
 channel, and going app-first gives it up unless we build it deliberately. Do not
@@ -69,8 +75,12 @@ your shell.
 ## Before you push
 
 ```sh
-make check      # runs everything CI runs
+make check      # runs everything CI runs: gofmt, go vet, go test, app typecheck
 ```
 
-CI will not run a stage whose directory does not exist yet, so `make check` is
-green on an empty repo by design.
+CI skips any stage whose directory does not exist, so adding `web/` later needs
+no pipeline changes.
+
+Running it locally is in [`README.md`](README.md). The short version: `docker
+compose up -d` then `go run ./cmd/checkpointd` for the API, and `npx expo start`
+in `app/` for the phone client.

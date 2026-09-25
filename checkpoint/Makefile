@@ -19,7 +19,9 @@ lint: ## Static checks
 		(cd api && go vet ./...); \
 	fi
 	@for d in app web; do \
-		if [ -f $$d/package.json ]; then (cd $$d && npm run lint --if-present); fi; \
+		if [ -f $$d/package.json ]; then \
+			(cd $$d && npm run lint --if-present && npm run typecheck --if-present); \
+		fi; \
 	done
 
 test: ## Run the test suites

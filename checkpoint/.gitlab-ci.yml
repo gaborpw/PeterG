@@ -72,7 +72,7 @@ node-lint:
   script:
     - for d in app web; do
         if [ -f "$d/package.json" ]; then
-          (cd "$d" && npm ci && npm run lint --if-present && npx --no-install tsc --noEmit || true);
+          (cd "$d" && npm ci && npm run lint --if-present && npm run typecheck --if-present);
         fi;
       done
 
