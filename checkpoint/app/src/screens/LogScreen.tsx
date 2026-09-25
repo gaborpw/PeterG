@@ -18,16 +18,32 @@ const STATUSES: { key: Status; label: string }[] = [
 const PLATFORMS = ['PS5', 'Xbox', 'Switch', 'PC', 'Steam Deck'];
 
 export function LogScreen({ route, navigation }: LogScreenProps) {
-  const { log } = useLibrary();
+  const { log, all } = useLibrary();
 
-  const [title, setTitle] = useState(route.params?.title ?? '');
-  const [platform, setPlatform] = useState('PC');
-  const [status, setStatus] = useState<Status>('playing');
-  const [hours, setHours] = useState('0');
-  const [rating, setRating] = useState(0);
-  const [half, setHalf] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [review, setReview] = useState('');
+  // Editing an existing entry rather than creating one. Everything below is
+  // seeded from it, so the form opens as a record of what you already said.
+  const editing =
+    route.params?.editId !== undefined
+      ? all.find((p) => p.id === route.params?.editId)
+      : undefined;
+
+  const [title, setTitle] = useState(editing?.title ?? route.params?.title ?? '');
+  const [platform, setPlatform] = useState(
+    editing?.platform !== undefined && PLATFORMS.includes(editing.platform)
+      ? editing.platform
+      : 'PC',
+  );
+  const [status, setStatus] = useState<Status>(editing?.status ?? 'playing');
+  const [hours, setHours] = useState(String(editing?.hours ?? 0));
+  // A 4.5 is stored as four whole stars plus the half toggle.
+  const [rating, setRating] = useState(
+    editing?.rating !== undefined ? Math.ceil(editing.rating) : 0,
+  );
+  const [half, setHalf] = useState(
+    editing?.rating !== undefined && editing.rating % 1 !== 0,
+  );
+  const [liked, setLiked] = useState(editing?.liked ?? false);
+  const [review, setReview] = useState(editing?.review ?? '');
 
   const value = rating > 0 && half ? rating - 0.5 : rating;
   const canSave = title.trim().length > 0;
@@ -42,7 +58,7 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
       rating: value > 0 ? value : undefined,
       liked,
       review: review.trim() === '' ? undefined : review.trim(),
-      coverUrl: route.params?.coverUrl,
+      coverUrl: editing?.coverUrl ?? route.params?.coverUrl,
     });
     navigation.goBack();
   }
@@ -51,7 +67,12 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
     <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScrollView contentContainerStyle={{ padding: space.xl, gap: space.xxl, paddingBottom: 40 }}>
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
-          <Cover title={title || 'Untitled'} url={route.params?.coverUrl} width={56} height={78} />
+          <Cover
+            title={title || 'Untitled'}
+            url={editing?.coverUrl ?? route.params?.coverUrl}
+            width={56}
+            height={78}
+          />
           <View style={{ flex: 1 }}>
             <Label>Game</Label>
             <TextInput
@@ -198,7 +219,7 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
               color: canSave ? '#14120F' : color.textFaint,
             }}
           >
-            Save to library
+            {editing !== undefined ? 'Save changes' : 'Save to library'}
           </Text>
         </Pressable>
       </ScrollView>

@@ -5,6 +5,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import type { RootStackParamList } from './src/navigation';
 import { GameScreen } from './src/screens/GameScreen';
 import { LogScreen } from './src/screens/LogScreen';
+import { PlaythroughScreen } from './src/screens/PlaythroughScreen';
 import { TabsScreen } from './src/screens/TabsScreen';
 import { LibraryProvider } from './src/store';
 import { color } from './src/theme';
@@ -47,9 +48,17 @@ export default function App() {
               options={({ route }) => ({ title: route.params.title })}
             />
             <Stack.Screen
+              name="Playthrough"
+              component={PlaythroughScreen}
+              options={{ title: 'Your entry' }}
+            />
+            <Stack.Screen
               name="Log"
               component={LogScreen}
-              options={{ title: 'Log a game', presentation: 'modal' }}
+              options={({ route }) => ({
+                title: route.params?.editId !== undefined ? 'Edit entry' : 'Log a game',
+                presentation: 'modal',
+              })}
             />
           </Stack.Navigator>
         </NavigationContainer>

@@ -8,10 +8,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 export type RootStackParamList = {
   Tabs: undefined;
   Game: { title: string; coverUrl?: string };
-  Log: { title?: string; coverUrl?: string } | undefined;
+  /** One of your own playthroughs, by store id. */
+  Playthrough: { id: string };
+  Log: { title?: string; coverUrl?: string; editId?: string } | undefined;
 };
 
 export type GameScreenProps = NativeStackScreenProps<RootStackParamList, 'Game'>;
+export type PlaythroughScreenProps = NativeStackScreenProps<RootStackParamList, 'Playthrough'>;
 export type LogScreenProps = NativeStackScreenProps<RootStackParamList, 'Log'>;
 
 declare global {

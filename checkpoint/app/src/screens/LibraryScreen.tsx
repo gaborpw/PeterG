@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
@@ -21,6 +22,7 @@ export function LibraryScreen() {
   // what you came here for. docs/information-architecture.md section 2.
   const [segment, setSegment] = useState<Segment>('playing');
   const { all, byStatus, source, lastError } = useLibrary();
+  const navigation = useNavigation();
 
   const games: Playthrough[] =
     segment === 'playing'
@@ -118,8 +120,11 @@ export function LibraryScreen() {
         </Text>
 
         {games.map((p) => (
-          <View
+          <Pressable
             key={p.id}
+            onPress={() => navigation.navigate('Playthrough', { id: p.id })}
+            accessibilityRole="button"
+            accessibilityLabel={`${p.title}, ${p.status}`}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -161,7 +166,7 @@ export function LibraryScreen() {
                 )}
               </View>
             </View>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
     </View>

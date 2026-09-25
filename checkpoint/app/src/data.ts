@@ -28,6 +28,8 @@ export type Playthrough = {
   rating?: number;
   liked?: boolean;
   droppedAtHour?: number;
+  /** The review you wrote on this playthrough, if any. */
+  review?: string;
 };
 
 export type FriendActivity = {

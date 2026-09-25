@@ -102,6 +102,7 @@ function fromWire(w: WirePlaythrough): Playthrough {
     hours: w.hours,
     rating: w.rating,
     liked: w.liked,
+    review: w.review,
   };
 }
 
