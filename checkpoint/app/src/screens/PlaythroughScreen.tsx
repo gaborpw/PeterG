@@ -8,7 +8,7 @@ import { color, radius, space } from '../theme';
 
 /** How each status reads, and which accent carries it. */
 const STATUS_LABEL: Record<string, string> = {
-  wishlist: 'On the wishlist',
+  wishlist: 'You want this',
   backlog: 'In the backlog',
   playing: 'Playing',
   paused: 'Paused',

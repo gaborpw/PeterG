@@ -161,6 +161,7 @@ export function LibraryScreen() {
                 {p.rating !== undefined && <Stars value={p.rating} size={11} />}
                 {p.status === 'ongoing' && <Chip label="ongoing" />}
                 {p.status === 'backlog' && <Chip label="not started" />}
+                {p.status === 'wishlist' && <Chip label="want it" />}
                 {p.status === 'abandoned' && (
                   <Chip label={`dropped at ${p.droppedAtHour}h`} tone="warm" />
                 )}

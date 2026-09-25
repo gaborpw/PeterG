@@ -13,7 +13,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
   // Progress-aware spoiler gating: a review written past where you have got to
   // stays collapsed until you ask for it. docs/spec.md 3.4.
   const [revealed, setRevealed] = useState(false);
-  const { all } = useLibrary();
+  const { all, log } = useLibrary();
 
   const { title, coverUrl } = route.params;
 
@@ -89,22 +89,44 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
             <Text style={{ fontSize: 13, color: color.textDim, lineHeight: 20 }}>
               Not in your library yet.
             </Text>
-            <Pressable
-              onPress={() => navigation.navigate('Log', { title, coverUrl })}
-              accessibilityRole="button"
-              style={{
-                marginTop: 12,
-                minHeight: 46,
-                borderRadius: radius.md,
-                backgroundColor: color.star,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#14120F' }}>
-                Log this game
-              </Text>
-            </Pressable>
+            <View style={{ flexDirection: 'row', gap: 9, marginTop: 12 }}>
+              <Pressable
+                onPress={() => navigation.navigate('Log', { title, coverUrl })}
+                accessibilityRole="button"
+                style={{
+                  flex: 1,
+                  minHeight: 46,
+                  borderRadius: radius.md,
+                  backgroundColor: color.star,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#14120F' }}>
+                  Log this game
+                </Text>
+              </Pressable>
+
+              {/* Wanting a game is one tap, not a form. See ADR 0004. */}
+              <Pressable
+                onPress={() =>
+                  log({ title, platform: '', status: 'wishlist', hours: 0, coverUrl })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Add ${title} to your wishlist`}
+                style={{
+                  minHeight: 46,
+                  paddingHorizontal: 16,
+                  borderRadius: radius.md,
+                  borderWidth: 1,
+                  borderColor: color.border,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 14, color: color.text }}>Want it</Text>
+              </Pressable>
+            </View>
           </>
         ) : (
           <>
@@ -120,7 +142,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
               {yours.lastPlayed !== undefined ? ` · last played ${yours.lastPlayed}` : ''}
             </Text>
             <Pressable
-              onPress={() => navigation.navigate('Log', { title, coverUrl })}
+              onPress={() => navigation.navigate('Log', { title, coverUrl, editId: yours.id })}
               accessibilityRole="button"
               style={{
                 marginTop: 12,
@@ -133,7 +155,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
               }}
             >
               <Text style={{ fontSize: 13, fontWeight: '500', color: color.text }}>
-                Update
+                {yours.status === 'wishlist' ? 'Start playing' : 'Update'}
               </Text>
             </Pressable>
           </>
