@@ -61,7 +61,7 @@ export type FeedEntry = {
 export const mine: Playthrough[] = [
   {
     id: 'p1',
-    title: 'Elden Ring',
+    title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg',
     platform: 'PS5',
     status: 'playing',
     hours: 47,
@@ -70,7 +70,7 @@ export const mine: Playthrough[] = [
   },
   {
     id: 'p2',
-    title: 'Balatro',
+    title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg',
     platform: 'Switch',
     status: 'ongoing',
     hours: 63,
@@ -80,32 +80,32 @@ export const mine: Playthrough[] = [
 
 /** Backlog and finished, so Library's segments have something in them. */
 export const backlog: Playthrough[] = [
-  { id: 'b1', title: 'Blue Prince', platform: 'PC', status: 'backlog', hours: 0 },
-  { id: 'b2', title: 'Pentiment', platform: 'Xbox', status: 'backlog', hours: 0 },
-  { id: 'b3', title: 'Citizen Sleeper 2', platform: 'Switch', status: 'backlog', hours: 0 },
-  { id: 'b4', title: 'Signalis', platform: 'PC', status: 'backlog', hours: 0 },
+  { id: 'b1', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg', platform: 'PC', status: 'backlog', hours: 0 },
+  { id: 'b2', title: 'Pentiment', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1205520/library_600x900.jpg', platform: 'Xbox', status: 'backlog', hours: 0 },
+  { id: 'b3', title: 'Citizen Sleeper 2', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2442460/library_600x900.jpg', platform: 'Switch', status: 'backlog', hours: 0 },
+  { id: 'b4', title: 'Signalis', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1262350/library_600x900.jpg', platform: 'PC', status: 'backlog', hours: 0 },
 ];
 
 export const finished: Playthrough[] = [
-  { id: 'd1', title: 'Outer Wilds', platform: 'PC', status: 'finished', hours: 27, rating: 5, liked: true },
-  { id: 'd2', title: 'Disco Elysium', platform: 'PC', status: 'finished', hours: 41, rating: 5, liked: true },
-  { id: 'd3', title: 'Return of the Obra Dinn', platform: 'Switch', status: 'finished', hours: 9, rating: 4.5 },
-  { id: 'd4', title: 'Starfield', platform: 'PC', status: 'abandoned', hours: 9, rating: 2, droppedAtHour: 9 },
+  { id: 'd1', title: 'Outer Wilds', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/753640/library_600x900.jpg', platform: 'PC', status: 'finished', hours: 27, rating: 5, liked: true },
+  { id: 'd2', title: 'Disco Elysium', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/632470/library_600x900.jpg', platform: 'PC', status: 'finished', hours: 41, rating: 5, liked: true },
+  { id: 'd3', title: 'Return of the Obra Dinn', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/653530/library_600x900.jpg', platform: 'Switch', status: 'finished', hours: 9, rating: 4.5 },
+  { id: 'd4', title: 'Starfield', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900.jpg', platform: 'PC', status: 'abandoned', hours: 9, rating: 2, droppedAtHour: 9 },
 ];
 
 export const friendsPlaying: FriendActivity[] = [
-  { id: 'f1', who: 'Mia', initials: 'MK', tint: '#2E4640', title: 'Hollow Knight: Silksong', platform: 'Switch 2', hours: 12, lastSession: '2h yesterday' },
+  { id: 'f1', who: 'Mia', initials: 'MK', tint: '#2E4640', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', platform: 'Switch 2', hours: 12, lastSession: '2h yesterday' },
   { id: 'f2', who: 'Dev', initials: 'DA', tint: '#3A3346', title: "Baldur's Gate 3", platform: 'PC', hours: 71, lastSession: '4h today' },
-  { id: 'f3', who: 'Sam', initials: 'SR', tint: '#46342E', title: 'Hades II', platform: 'PC', hours: 26, lastSession: '1h today' },
-  { id: 'f4', who: 'Rae', initials: 'RL', tint: '#2E3A46', title: 'Metaphor: ReFantazio', platform: 'PS5', hours: 38, lastSession: '3h Sunday' },
-  { id: 'f5', who: 'Jon', initials: 'JT', tint: '#2E3A46', title: 'Elden Ring', platform: 'PS5', hours: 31, lastSession: '2h Saturday' },
+  { id: 'f3', who: 'Sam', initials: 'SR', tint: '#46342E', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', platform: 'PC', hours: 26, lastSession: '1h today' },
+  { id: 'f4', who: 'Rae', initials: 'RL', tint: '#2E3A46', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', platform: 'PS5', hours: 38, lastSession: '3h Sunday' },
+  { id: 'f5', who: 'Jon', initials: 'JT', tint: '#2E3A46', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', platform: 'PS5', hours: 31, lastSession: '2h Saturday' },
 ];
 
 export const feed: FeedEntry[] = [
   {
     id: 'e1',
     who: 'Mia', initials: 'MK', tint: '#2E4640',
-    verb: 'finished', title: 'Elden Ring',
+    verb: 'finished', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg',
     hours: 112, rating: 5, liked: true,
     tags: ['6 weeks', 'PS5', '100%'],
     review: 'The last stretch asks you to be a different player than the one who started, and somehow you already are.',
@@ -114,7 +114,7 @@ export const feed: FeedEntry[] = [
   {
     id: 'e2',
     who: 'Dev', initials: 'DA', tint: '#3A3346',
-    verb: 'gave up on', title: 'Starfield',
+    verb: 'gave up on', title: 'Starfield', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900.jpg',
     hours: 9, rating: 2,
     tags: ['dropped at 9h', 'bored'],
     review: 'Nine hours and every planet was the same three rocks.',
@@ -123,7 +123,7 @@ export const feed: FeedEntry[] = [
   {
     id: 'e3',
     who: 'Rae', initials: 'RL', tint: '#2E3A46',
-    verb: 'finished', title: 'Blue Prince',
+    verb: 'finished', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg',
     hours: 34, rating: 4.5,
     tags: ['PC', 'no review'],
     when: 'Sunday',
@@ -141,13 +141,13 @@ export type PopularGame = {
 
 /** Popular this week, across everyone. The home screen's first row. */
 export const popularThisWeek: PopularGame[] = [
-  { id: 'g1', title: 'Hollow Knight: Silksong', avgRating: 4.6, playersThisWeek: '18.2k' },
-  { id: 'g2', title: 'Elden Ring', avgRating: 4.4, playersThisWeek: '14.9k' },
-  { id: 'g3', title: 'Blue Prince', avgRating: 4.3, playersThisWeek: '11.4k' },
+  { id: 'g1', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', avgRating: 4.6, playersThisWeek: '18.2k' },
+  { id: 'g2', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', avgRating: 4.4, playersThisWeek: '14.9k' },
+  { id: 'g3', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg', avgRating: 4.3, playersThisWeek: '11.4k' },
   { id: 'g4', title: 'Baldur\u2019s Gate 3', avgRating: 4.7, playersThisWeek: '9.8k' },
-  { id: 'g5', title: 'Metaphor: ReFantazio', avgRating: 4.2, playersThisWeek: '7.1k' },
-  { id: 'g6', title: 'Hades II', avgRating: 4.5, playersThisWeek: '6.6k' },
-  { id: 'g7', title: 'Balatro', avgRating: 4.4, playersThisWeek: '5.9k' },
+  { id: 'g5', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', avgRating: 4.2, playersThisWeek: '7.1k' },
+  { id: 'g6', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', avgRating: 4.5, playersThisWeek: '6.6k' },
+  { id: 'g7', title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', avgRating: 4.4, playersThisWeek: '5.9k' },
 ];
 
 export type CommunityReview = {
@@ -171,7 +171,7 @@ export const popularReviews: CommunityReview[] = [
   {
     id: 'r1',
     who: 'Nadia', initials: 'NV', tint: '#3A3346',
-    title: 'Hollow Knight: Silksong',
+    title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg',
     rating: 4.5, liked: true, context: 'finished · 41h',
     body: 'Every boss taught me something I did not know I was being taught. The difficulty is not cruelty, it is tuition.',
     likes: 842, comments: 63,
@@ -179,7 +179,7 @@ export const popularReviews: CommunityReview[] = [
   {
     id: 'r2',
     who: 'Theo', initials: 'TM', tint: '#46342E',
-    title: 'Blue Prince',
+    title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg',
     rating: 5, liked: true, context: '100% · 34h',
     body: 'I have not taken notes on paper for a game since I was twelve. Three pages in and I understood what it wanted from me.',
     likes: 611, comments: 94,
@@ -187,7 +187,7 @@ export const popularReviews: CommunityReview[] = [
   {
     id: 'r3',
     who: 'Iris', initials: 'IK', tint: '#2E4640',
-    title: 'Metaphor: ReFantazio',
+    title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg',
     rating: 4, liked: false, context: 'dropped at 22h',
     body: 'Beautiful, and I bounced. The calendar pressure turned a fantasy into a scheduling problem I already have at work.',
     likes: 508, comments: 121,
