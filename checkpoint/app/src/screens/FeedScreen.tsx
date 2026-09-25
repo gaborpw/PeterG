@@ -1,6 +1,7 @@
 import { ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
+import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { feed } from '../data';
 import { color, radius, space } from '../theme';
@@ -33,16 +34,7 @@ export function FeedScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', gap: 13 }}>
-            <View
-              style={{
-                width: 52,
-                height: 70,
-                borderRadius: radius.sm,
-                backgroundColor: color.surface2,
-                borderWidth: 1,
-                borderColor: color.border,
-              }}
-            />
+            <Cover title={e.title} url={e.coverUrl} width={52} height={70} />
             <View style={{ flex: 1, gap: 7 }}>
               <Text style={{ fontSize: 16, fontWeight: '600', color: color.text }}>
                 {e.title}

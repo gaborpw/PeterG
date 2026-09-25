@@ -50,6 +50,29 @@ add logging UI or authenticated flows there.
 - Secrets never enter the repo. They are GitLab CI/CD variables, masked and
   protected. `.env` is git-ignored and must stay that way.
 
+## Cover art
+
+`app/src/components/Cover.tsx` is the only place a cover is drawn. Everything
+passes it a title, an optional url and a size.
+
+Two rules:
+
+- **The fallback is not an error state.** A meaningful share of any game
+  catalogue has no art — obscure releases, regional editions, most things before
+  2000. Cover draws a typographic card tinted deterministically from the title,
+  so a shelf of them reads as deliberate rather than broken. Never replace it
+  with a spinner, a broken-image glyph or a grey box.
+- **Never hotlink IGDB's CDN in production.** Cache the images and re-serve them
+  from our own, with our own crops. Hotlinking puts our uptime in someone else's
+  hands and their terms can change. Dev is a different matter: pointing
+  `coverUrl` at `https://images.igdb.com/igdb/image/upload/t_cover_big/<id>.jpg`
+  while building is fine.
+
+Cover art is copyrighted by its publishers. Displaying it alongside a review of
+the game is the same editorial use Letterboxd, Backloggd and IGDB itself rely
+on. Do not build features that repackage the art on its own — wallpapers,
+galleries, downloads.
+
 ## Things that will bite you
 
 - **Mirror IGDB, never proxy it.** Its rate limit (~4 req/s) cannot serve live

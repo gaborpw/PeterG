@@ -6,6 +6,8 @@ export type Status = 'playing' | 'finished' | 'paused' | 'abandoned' | 'ongoing'
 export type Playthrough = {
   id: string;
   title: string;
+  /** Remote cover art. Filled by the IGDB mirror; undefined falls back. */
+  coverUrl?: string;
   platform: string;
   status: Status;
   hours: number;
@@ -23,6 +25,7 @@ export type FriendActivity = {
   initials: string;
   tint: string;
   title: string;
+  coverUrl?: string;
   platform: string;
   hours: number;
   lastSession: string;
@@ -35,6 +38,7 @@ export type FeedEntry = {
   tint: string;
   verb: 'finished' | 'gave up on';
   title: string;
+  coverUrl?: string;
   hours: number;
   rating: number;
   liked?: boolean;
@@ -103,6 +107,7 @@ export const feed: FeedEntry[] = [
 /** Aggregates for the game page. Computed server-side in the real thing. */
 export const gameStats = {
   title: 'Elden Ring',
+  coverUrl: undefined as string | undefined,
   year: 2022,
   developer: 'FromSoftware',
   medianHours: 94,
@@ -117,6 +122,14 @@ export const gameStats = {
     { label: 'Finished', pct: 58 },
   ],
 };
+
+/** Games pinned to the profile. Four, always. */
+export const favourites = [
+  { id: 'fav1', title: 'Outer Wilds' },
+  { id: 'fav2', title: 'Disco Elysium' },
+  { id: 'fav3', title: 'Return of the Obra Dinn' },
+  { id: 'fav4', title: 'Dark Souls' },
+] as { id: string; title: string; coverUrl?: string }[];
 
 export const profile = {
   name: 'Peter G',

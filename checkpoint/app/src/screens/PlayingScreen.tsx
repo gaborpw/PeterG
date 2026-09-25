@@ -1,6 +1,7 @@
 import { ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
+import { Cover } from '../components/Cover';
 import { friendsPlaying, mine } from '../data';
 import { color, radius, space } from '../theme';
 
@@ -31,16 +32,7 @@ export function PlayingScreen() {
                 borderColor: p.status === 'playing' ? '#33513F' : color.border,
               }}
             >
-              <View
-                style={{
-                  width: 46,
-                  height: 62,
-                  borderRadius: radius.sm,
-                  backgroundColor: color.surface2,
-                  borderWidth: 1,
-                  borderColor: color.border,
-                }}
-              />
+              <Cover title={p.title} url={p.coverUrl} width={46} height={62} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14.5, fontWeight: '600', color: color.text }}>
                   {p.title}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
+import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { gameStats } from '../data';
 import { color, radius, space } from '../theme';
@@ -18,16 +19,7 @@ export function GameScreen() {
       contentContainerStyle={{ padding: space.xl, gap: space.xxl }}
     >
       <View style={{ flexDirection: 'row', gap: space.lg }}>
-        <View
-          style={{
-            width: 100,
-            height: 134,
-            borderRadius: 10,
-            backgroundColor: color.surface2,
-            borderWidth: 1,
-            borderColor: color.border,
-          }}
-        />
+        <Cover title={g.title} url={g.coverUrl} width={100} height={134} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 27, fontWeight: '700', color: color.text }}>
             {g.title}

@@ -1,6 +1,7 @@
 import { ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
-import { mine, profile } from '../data';
+import { Cover } from '../components/Cover';
+import { favourites, mine, profile } from '../data';
 import { color, radius, space } from '../theme';
 
 export function ProfileScreen() {
@@ -47,18 +48,8 @@ export function ProfileScreen() {
           FAVOURITES
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          {[0, 1, 2, 3].map((i) => (
-            <View
-              key={i}
-              style={{
-                flex: 1,
-                height: 104,
-                borderRadius: 9,
-                backgroundColor: color.surface2,
-                borderWidth: 1,
-                borderColor: color.border,
-              }}
-            />
+          {favourites.map((f) => (
+            <Cover key={f.id} title={f.title} url={f.coverUrl} width={76} height={104} />
           ))}
         </View>
       </View>
@@ -80,16 +71,7 @@ export function ProfileScreen() {
                 backgroundColor: color.surface,
               }}
             >
-              <View
-                style={{
-                  width: 34,
-                  height: 46,
-                  borderRadius: 6,
-                  backgroundColor: color.surface2,
-                  borderWidth: 1,
-                  borderColor: color.border,
-                }}
-              />
+              <Cover title={p.title} url={p.coverUrl} width={34} height={46} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 13.5, fontWeight: '500', color: color.text }}>
                   {p.title}
