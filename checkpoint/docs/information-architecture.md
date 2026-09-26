@@ -121,6 +121,37 @@ Fourteen screens. Five are tab roots; the rest are pushed or presented.
 
 ---
 
+## 3a. What Home is for
+
+Three rows, and they answer three different questions. Worth stating because
+two of them are sample data today and it would be easy to mistake the stand-in
+for the design.
+
+**You lately** — your own recent sessions. Real now. It sits above the shelves
+because it is the only row on the screen that is true, and it stays when the
+others become real.
+
+**Popular this week** — global. What everyone is playing, regardless of who you
+follow. Tapping a cover opens that game's page; these are games, not people.
+Today the order is editorial and the numbers under each cover come from
+aggregateFor, so they at least agree with the game page.
+
+**Friends are playing** — the people you follow: what they are in the middle
+of, and what they have written. Both belong in this row. A friend finishing
+something and saying why is the same kind of event as a friend starting
+something, and splitting them across two shelves would mean the interesting one
+scrolls off.
+
+Mia, Dev, Sam, Nadia and Theo are placeholders for that row. They are not
+decoration and not a design: they are what it will look like with five people
+in it. Real accounts arrive with the social milestone (M4), and at that point
+this row is a query rather than an array.
+
+The rule that follows from this: **do not mix your real activity into the
+sample rows.** One true row among nine invented ones, on the screen where
+someone forms their first impression, is worse than an honest placeholder.
+Your activity has its own row for exactly that reason.
+
 ## 4. Per-screen breakdown
 
 Each screen: what it must have to ship, what can wait, and the work.

@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { playthroughMeta } from '../format';
 import { useNavigation } from '@react-navigation/native';
+import * as api from '../api';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
+import { Sparkline, toDays } from '../components/Sparkline';
 import { Stars } from '../components/Stars';
+import { daysAgo } from '../dates';
 import { type Playthrough } from '../data';
 import { useLibrary } from '../store';
 import { type Segment } from '../tabs';
@@ -51,6 +54,36 @@ export function LibraryScreen({
    * for. A small panel under the button is what the gesture implies.
    */
   const [menuFor, setMenuFor] = useState<string | null>(null);
+
+  // One request for every game's recent sessions, bucketed here, rather than a
+  // fetch per row. Reuses the activity feed's endpoint: "what did I play
+  // lately" is the same question whichever screen asks it.
+  const [recent, setRecent] = useState<Record<string, number[]>>({});
+
+  useEffect(() => {
+    let live = true;
+    api
+      .listActivity(100)
+      .then((items) => {
+        if (!live) return;
+        const byGame: Record<string, typeof items> = {};
+        for (const item of items) {
+          const key = String(item.playthroughId);
+          (byGame[key] ??= []).push(item);
+        }
+        setRecent(
+          Object.fromEntries(
+            Object.entries(byGame).map(([id, sessions]) => [id, toDays(sessions, daysAgo)]),
+          ),
+        );
+      })
+      .catch(() => {
+        // A missing sparkline is a missing sparkline. The row is still a row.
+      });
+    return () => {
+      live = false;
+    };
+  }, [all]);
 
   function confirmRemove(p: Playthrough) {
     setMenuFor(null);
@@ -212,6 +245,14 @@ export function LibraryScreen({
                   <Chip label={`dropped at ${p.droppedAtHour}h`} tone="warm" />
                 )}
               </View>
+
+              {/* Only where it means something: a finished game's last two
+                  weeks are not news, and a wishlist entry has none. */}
+              {(p.status === 'playing' || p.status === 'ongoing' || p.status === 'paused') && (
+                <View style={{ marginTop: 9 }}>
+                  <Sparkline days={recent[p.id] ?? new Array<number>(14).fill(0)} />
+                </View>
+              )}
             </View>
 
             <Pressable
