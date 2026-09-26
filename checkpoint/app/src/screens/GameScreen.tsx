@@ -3,7 +3,8 @@ import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
-import { Menu, MenuButton, MenuItem } from '../components/Menu';
+import { GameActionSheet } from '../components/GameActionSheet';
+import { MenuButton } from '../components/Menu';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
 import { aggregateFor, factsFor, reviewsFor, type GameReview } from '../data';
@@ -40,9 +41,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
       style={{ flex: 1 }}
       contentContainerStyle={{ padding: space.xl, gap: space.xxl }}
     >
-      {/* Lifted while open so the panel draws over the ratings block rather
-          than behind it. */}
-      <View style={{ flexDirection: 'row', gap: space.lg, zIndex: menuOpen ? 10 : 0 }}>
+      <View style={{ flexDirection: 'row', gap: space.lg }}>
         <Cover title={title} url={coverUrl} width={100} height={134} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 27, fontWeight: '700', color: color.text }}>
@@ -70,67 +69,74 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
             label={`Actions for ${title}`}
           />
 
-          {menuOpen && (
-            <Menu>
-              {/* What you can do depends on whether this game is yours yet.
-                  Offering "log a session" for something you have never played
-                  would be an action with nothing to attach to. */}
-              {yours === undefined ? (
-                <>
-                  <MenuItem
-                    first
-                    label="Log this game"
-                    onPress={() => {
-                      setMenuOpen(false);
-                      navigation.navigate('Log', { title, coverUrl });
-                    }}
-                  />
-                  <MenuItem
-                    label="Add to wishlist"
-                    onPress={() => {
-                      setMenuOpen(false);
-                      log({ title, platform: '', status: 'wishlist', hours: 0, coverUrl });
-                    }}
-                  />
-                </>
-              ) : (
-                <>
-                  <MenuItem
-                    first
-                    label="Log a session"
-                    onPress={() => {
-                      setMenuOpen(false);
-                      navigation.navigate('LogSession');
-                    }}
-                  />
-                  <MenuItem
-                    label={yours.review === undefined ? 'Write a review' : 'Edit your review'}
-                    onPress={() => {
-                      setMenuOpen(false);
-                      navigation.navigate('Log', { title, coverUrl, editId: yours.id });
-                    }}
-                  />
-                  <MenuItem
-                    label="Remove from library"
-                    destructive
-                    onPress={() => {
-                      setMenuOpen(false);
-                      Alert.alert(
-                        'Delete this entry?',
-                        `${title} will be removed from your library.`,
-                        [
-                          { text: 'Cancel', style: 'cancel' },
-                          { text: 'Delete', style: 'destructive', onPress: () => remove(yours.id) },
-                        ],
-                      );
-                    }}
-                  />
-                </>
-              )}
-            </Menu>
-          )}
         </View>
       </View>
+
+      <GameActionSheet
+        visible={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title={title}
+        subtitle={facts === undefined ? undefined : `${facts.year} · ${facts.developer}`}
+        yours={yours}
+        // Rating is the point of the sheet: two taps, no form. A game you have
+        // not logged becomes one, because rating something means you played it.
+        onRate={(rating) => {
+          log({
+            title,
+            platform: yours?.platform ?? '',
+            status: yours?.status ?? 'playing',
+            hours: yours?.hours ?? 0,
+            rating,
+            liked: yours?.liked,
+            review: yours?.review,
+            coverUrl: coverUrl ?? yours?.coverUrl,
+          });
+        }}
+        onToggleLike={() => {
+          log({
+            title,
+            platform: yours?.platform ?? '',
+            status: yours?.status ?? 'playing',
+            hours: yours?.hours ?? 0,
+            rating: yours?.rating,
+            liked: !(yours?.liked ?? false),
+            review: yours?.review,
+            coverUrl: coverUrl ?? yours?.coverUrl,
+          });
+        }}
+        onSetPlaying={() => {
+          log({
+            title,
+            platform: yours?.platform ?? '',
+            status: 'playing',
+            hours: yours?.hours ?? 0,
+            rating: yours?.rating,
+            liked: yours?.liked,
+            review: yours?.review,
+            coverUrl: coverUrl ?? yours?.coverUrl,
+          });
+        }}
+        onWishlist={() => {
+          log({ title, platform: '', status: 'wishlist', hours: 0, coverUrl });
+          setMenuOpen(false);
+        }}
+        onLogSession={() => {
+          setMenuOpen(false);
+          navigation.navigate('LogSession');
+        }}
+        onReviewOrLog={() => {
+          setMenuOpen(false);
+          navigation.navigate('Log', { title, coverUrl, editId: yours?.id });
+        }}
+        onRemove={() => {
+          setMenuOpen(false);
+          if (yours === undefined) return;
+          Alert.alert('Delete this entry?', `${title} will be removed from your library.`, [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => remove(yours.id) },
+          ]);
+        }}
+      />
 
       {agg.logs === 0 ? (
         <View
