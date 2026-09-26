@@ -15,6 +15,9 @@ export type RootStackParamList = {
   /** Step one of logging: choose the game. Replaced by Log, not stacked. */
   PickGame: undefined;
   Log: { title?: string; coverUrl?: string; editId?: string } | undefined;
+  EditProfile: undefined;
+  /** Choosing the game for one of the four slots. */
+  PickFavorite: { position: number };
 };
 
 export type GameScreenProps = NativeStackScreenProps<RootStackParamList, 'Game'>;
@@ -22,6 +25,8 @@ export type PlaythroughScreenProps = NativeStackScreenProps<RootStackParamList, 
 export type EntryScreenProps = NativeStackScreenProps<RootStackParamList, 'Entry'>;
 export type LogScreenProps = NativeStackScreenProps<RootStackParamList, 'Log'>;
 export type PickGameScreenProps = NativeStackScreenProps<RootStackParamList, 'PickGame'>;
+export type EditProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
+export type PickFavoriteScreenProps = NativeStackScreenProps<RootStackParamList, 'PickFavorite'>;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Cover } from '../components/Cover';
 import { searchGames, type GameSummary } from '../catalogue';
+import { titleKey } from '../data';
+import { useLibrary } from '../store';
 import type { PickGameScreenProps } from '../navigation';
 import { color, radius, space } from '../theme';
 
@@ -17,6 +19,12 @@ import { color, radius, space } from '../theme';
 export function PickGameScreen({ navigation }: PickGameScreenProps) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GameSummary[]>([]);
+  const { byStatus } = useLibrary();
+
+  // Updating hours on something you are already playing is the commonest log
+  // there is, and alphabetical order buries it. Nothing typed, so lead with
+  // the games in rotation.
+  const continuing = byStatus('playing', 'ongoing');
 
   useEffect(() => {
     // searchGames is a network call once IGDB is behind it, so a slow earlier
@@ -65,7 +73,40 @@ export function PickGameScreen({ navigation }: PickGameScreenProps) {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: space.xl, paddingBottom: 40, gap: 12 }}
         keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
       >
+        {typed === '' && continuing.length > 0 && (
+          <>
+            <Text
+              style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}
+            >
+              CONTINUE
+            </Text>
+            {continuing.map((p) => (
+              <Pressable
+                key={p.id}
+                onPress={() =>
+                  navigation.replace('Log', { title: p.title, coverUrl: p.coverUrl, editId: p.id })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={`Update ${p.title}`}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 13, minHeight: 62 }}
+              >
+                <Cover title={p.title} url={p.coverUrl} width={44} height={62} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 14, fontWeight: '500', color: color.text }}>
+                    {p.title}
+                  </Text>
+                  <Text style={{ fontSize: 11.5, color: color.active, marginTop: 5 }}>
+                    {p.hours}h so far
+                  </Text>
+                </View>
+                <Text style={{ fontSize: 20, color: color.textFaint }}>›</Text>
+              </Pressable>
+            ))}
+          </>
+        )}
+
         <Text style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}>
           {typed === '' ? 'ALL GAMES' : `${results.length} RESULT${results.length === 1 ? '' : 'S'}`}
         </Text>

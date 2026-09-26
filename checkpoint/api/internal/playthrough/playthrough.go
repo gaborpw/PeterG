@@ -127,7 +127,7 @@ func (r *Repo) Save(ctx context.Context, accountID int64, in Input) (Playthrough
 	defer func() { _ = tx.Rollback() }()
 
 	title := strings.TrimSpace(in.Title)
-	slug := slugify(title)
+	slug := Slugify(title)
 
 	// Until the IGDB mirror exists, a title we have not seen becomes a
 	// minimal game row. The sync will later match these on slug.
@@ -237,7 +237,12 @@ func (r *Repo) Delete(ctx context.Context, accountID, id int64) error {
 	return nil
 }
 
-func slugify(title string) string {
+// Slugify turns a title into the game table's natural key.
+//
+// Exported because the profile package upserts games too: two spellings of one
+// game must land on one row, and a second implementation of this rule would
+// eventually disagree with this one and split them.
+func Slugify(title string) string {
 	var b strings.Builder
 	lastDash := true
 	for _, r := range strings.ToLower(title) {

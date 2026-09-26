@@ -6,9 +6,12 @@ import type { RootStackParamList } from './src/navigation';
 import { GameScreen } from './src/screens/GameScreen';
 import { LogScreen } from './src/screens/LogScreen';
 import { PickGameScreen } from './src/screens/PickGameScreen';
+import { EditProfileScreen } from './src/screens/EditProfileScreen';
+import { PickFavoriteScreen } from './src/screens/PickFavoriteScreen';
 import { EntryScreen } from './src/screens/EntryScreen';
 import { PlaythroughScreen } from './src/screens/PlaythroughScreen';
 import { TabsScreen } from './src/screens/TabsScreen';
+import { ProfileProvider } from './src/profile';
 import { LibraryProvider } from './src/store';
 import { color } from './src/theme';
 
@@ -33,6 +36,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <LibraryProvider>
+        <ProfileProvider>
         <ExpoStatusBar style="light" />
         <NavigationContainer theme={theme}>
           <Stack.Navigator
@@ -58,6 +62,16 @@ export default function App() {
             {/* Both steps of logging are one modal: the picker replaces itself
                 with the form, so dismissing either gets you out in one go. */}
             <Stack.Screen
+              name="EditProfile"
+              component={EditProfileScreen}
+              options={{ title: 'Edit profile', presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="PickFavorite"
+              component={PickFavoriteScreen}
+              options={{ title: 'Pick a favorite', presentation: 'modal' }}
+            />
+            <Stack.Screen
               name="PickGame"
               component={PickGameScreen}
               options={{ title: 'Log a game', presentation: 'modal' }}
@@ -72,6 +86,7 @@ export default function App() {
             />
           </Stack.Navigator>
         </NavigationContainer>
+      </ProfileProvider>
       </LibraryProvider>
     </SafeAreaProvider>
   );

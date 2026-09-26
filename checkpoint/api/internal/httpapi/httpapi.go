@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"gitlab.com/gaborpw/checkpoint/api/internal/playthrough"
+	"gitlab.com/gaborpw/checkpoint/api/internal/profile"
 )
 
 // Pinger is the part of the store this package needs. Taking the narrow
@@ -25,13 +26,14 @@ type Pinger interface {
 }
 
 type Server struct {
-	store Pinger
-	plays *playthrough.Repo
-	log   *slog.Logger
+	store    Pinger
+	plays    *playthrough.Repo
+	profiles *profile.Repo
+	log      *slog.Logger
 }
 
-func New(store Pinger, plays *playthrough.Repo, log *slog.Logger) *Server {
-	return &Server{store: store, plays: plays, log: log}
+func New(store Pinger, plays *playthrough.Repo, profiles *profile.Repo, log *slog.Logger) *Server {
+	return &Server{store: store, plays: plays, profiles: profiles, log: log}
 }
 
 // Routes returns the service's handler.
@@ -53,6 +55,10 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /v1/me/playthroughs", s.handleListPlaythroughs)
 	mux.HandleFunc("POST /v1/me/playthroughs", s.handleSavePlaythrough)
 	mux.HandleFunc("DELETE /v1/me/playthroughs/{id}", s.handleDeletePlaythrough)
+
+	mux.HandleFunc("GET /v1/me/profile", s.handleGetProfile)
+	mux.HandleFunc("PATCH /v1/me/profile", s.handleUpdateProfile)
+	mux.HandleFunc("PUT /v1/me/favorites", s.handleSetFavorites)
 
 	return s.withCORS(s.withRequestLog(mux))
 }
@@ -181,4 +187,62 @@ func writeJSON(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(body)
+}
+
+func (s *Server) handleGetProfile(w http.ResponseWriter, r *http.Request) {
+	p, err := s.profiles.Get(r.Context(), s.accountID())
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "get profile", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not load"})
+		return
+	}
+	writeJSON(w, http.StatusOK, p)
+}
+
+func (s *Server) handleUpdateProfile(w http.ResponseWriter, r *http.Request) {
+	var in profile.Input
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&in); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "malformed body"})
+		return
+	}
+
+	p, err := s.profiles.Update(r.Context(), s.accountID(), in)
+	switch {
+	case errors.Is(err, profile.ErrHandleTaken):
+		// 409, not 422: the input is well formed, somebody else just has it.
+		writeJSON(w, http.StatusConflict, map[string]string{"error": "that handle is taken"})
+		return
+	case errors.Is(err, profile.ErrInvalid):
+		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+		return
+	case err != nil:
+		s.log.ErrorContext(r.Context(), "update profile", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not save"})
+		return
+	}
+	writeJSON(w, http.StatusOK, p)
+}
+
+func (s *Server) handleSetFavorites(w http.ResponseWriter, r *http.Request) {
+	var in []profile.FavoriteInput
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&in); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "malformed body"})
+		return
+	}
+
+	p, err := s.profiles.SetFavorites(r.Context(), s.accountID(), in)
+	if errors.Is(err, profile.ErrInvalid) {
+		writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+		return
+	}
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "set favorites", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not save"})
+		return
+	}
+	writeJSON(w, http.StatusOK, p)
 }

@@ -601,20 +601,17 @@ export function reviewsFor(title: string): GameReview[] {
   return [...fromReviews, ...fromFeed];
 }
 
-/** Games pinned to the profile. Four, always. */
+/**
+ * Titles that exist only to be findable.
+ *
+ * These were the profile's hardcoded favorites; real favorites now live in the
+ * database and are chosen through search. The list stays because catalogue.ts
+ * builds its index from these arrays, and dropping it would make Dark Souls
+ * unfindable — and so impossible to favorite. It goes when IGDB lands.
+ */
 export const favorites = [
   { id: 'fav1', title: 'Outer Wilds' },
   { id: 'fav2', title: 'Disco Elysium' },
   { id: 'fav3', title: 'Return of the Obra Dinn' },
   { id: 'fav4', title: 'Dark Souls' },
 ] as { id: string; title: string; coverUrl?: string }[];
-
-export const profile = {
-  name: 'Peter G',
-  handle: '@peterg',
-  bio: 'Long RPGs, short roguelikes, no patience for tutorials.',
-  logged: 412,
-  finished: 58,
-  finishRate: 41,
-  allTimeHours: '3,190',
-};

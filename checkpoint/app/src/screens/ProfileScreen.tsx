@@ -6,10 +6,11 @@ import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { gameByTitle } from '../catalogue';
 import { platformLabel } from '../platforms';
+import { useProfile } from '../profile';
 import { useTabs } from '../tabs';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
-import { aggregateFor, aggregateLogs, favorites, profile } from '../data';
+import { aggregateFor, aggregateLogs } from '../data';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
@@ -17,6 +18,16 @@ export function ProfileScreen() {
   const { all, byStatus } = useLibrary();
   const navigation = useNavigation();
   const { openLibrary } = useTabs();
+  const { profile, ready: profileReady } = useProfile();
+
+  // Initials are derived rather than stored: one less thing to keep in step
+  // when you rename yourself.
+  const initials = (profile?.displayName ?? '')
+    .split(/\s+/)
+    .filter((w) => w !== '')
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
 
   const active = byStatus('playing', 'ongoing');
   const wishlist = byStatus('wishlist');
@@ -39,18 +50,44 @@ export function ProfileScreen() {
       contentContainerStyle={{ padding: space.xl, gap: space.xxl }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
-        <Avatar initials="PG" tint="#2E3A46" size={62} />
+        <Avatar initials={initials === '' ? '?' : initials} tint="#2E3A46" size={62} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 21, fontWeight: '700', color: color.text }}>
-            {profile.name}
+            {profile?.displayName === undefined || profile.displayName === ''
+              ? 'Your name'
+              : profile.displayName}
           </Text>
           <Text style={{ fontSize: 12.5, color: color.textFaint, marginTop: 3 }}>
-            {profile.handle}
+            @{profile?.handle ?? '…'}
           </Text>
         </View>
+
+        {/* Nothing here is editable until the server has answered — offering a
+            form over a profile we could not load would lose whatever is typed
+            into it. */}
+        {profileReady && profile !== null && (
+          <Pressable
+            onPress={() => navigation.navigate('EditProfile')}
+            accessibilityRole="button"
+            accessibilityLabel="Edit profile"
+            style={{
+              minHeight: 36,
+              paddingHorizontal: 14,
+              borderRadius: radius.md,
+              borderWidth: 1,
+              borderColor: color.border,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>Edit</Text>
+          </Pressable>
+        )}
       </View>
 
-      <Text style={{ fontSize: 13, lineHeight: 20, color: '#C8CDD5' }}>{profile.bio}</Text>
+      {profile !== null && profile.bio !== '' && (
+        <Text style={{ fontSize: 13, lineHeight: 20, color: '#C8CDD5' }}>{profile.bio}</Text>
+      )}
 
       <View
         style={{
@@ -80,33 +117,52 @@ export function ProfileScreen() {
           FAVORITES
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          {favorites.map((f) => {
-            const agg = aggregateFor(f.title);
+          {/* Always four slots. An empty one is an invitation rather than an
+              absence — the shelf says what it is for before you fill it. */}
+          {[1, 2, 3, 4].map((position) => {
+            const fav = profile?.favorites.find((f) => f.position === position);
+            const agg = fav === undefined ? undefined : aggregateFor(fav.title);
+
             return (
-              // Favorites are titles, not full records, so both the art and the
-              // rating come from the catalogue rather than being duplicated
-              // alongside them.
               <Pressable
-                key={f.id}
-                onPress={() =>
-                  navigation.navigate('Game', {
-                    title: f.title,
-                    coverUrl: f.coverUrl ?? gameByTitle(f.title)?.coverUrl,
-                  })
-                }
+                key={position}
+                onPress={() => navigation.navigate('PickFavorite', { position })}
                 accessibilityRole="button"
-                accessibilityLabel={f.title}
+                accessibilityLabel={
+                  fav === undefined
+                    ? `Choose favorite ${position}`
+                    : `${fav.title}, favorite ${position}`
+                }
               >
-                <Cover
-                  title={f.title}
-                  url={f.coverUrl ?? gameByTitle(f.title)?.coverUrl}
-                  width={76}
-                  height={104}
-                />
-                {agg.avgRating !== undefined && (
-                  <View style={{ marginTop: 6, alignItems: 'center' }}>
-                    <Stars value={agg.avgRating} size={10} />
+                {fav === undefined ? (
+                  <View
+                    style={{
+                      width: 76,
+                      height: 104,
+                      borderRadius: radius.md,
+                      borderWidth: 1,
+                      borderColor: color.border,
+                      borderStyle: 'dashed',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Text style={{ fontSize: 22, color: color.textFaint }}>+</Text>
                   </View>
+                ) : (
+                  <>
+                    <Cover
+                      title={fav.title}
+                      url={fav.coverUrl ?? gameByTitle(fav.title)?.coverUrl}
+                      width={76}
+                      height={104}
+                    />
+                    {agg?.avgRating !== undefined && (
+                      <View style={{ marginTop: 6, alignItems: 'center' }}>
+                        <Stars value={agg.avgRating} size={10} />
+                      </View>
+                    )}
+                  </>
                 )}
               </Pressable>
             );

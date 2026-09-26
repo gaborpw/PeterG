@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { searchGames, type GameSummary } from '../catalogue';
-import { aggregateFor, popularThisWeek } from '../data';
+import { aggregateFor, popularThisWeek, titleKey } from '../data';
+import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
 export function SearchScreen() {
@@ -12,6 +13,7 @@ export function SearchScreen() {
   const navigation = useNavigation();
 
   const [results, setResults] = useState<GameSummary[]>([]);
+  const { all } = useLibrary();
   const q = query.trim();
 
   // Searching goes through the catalogue, not the trending row — that row is
@@ -20,12 +22,26 @@ export function SearchScreen() {
   useEffect(() => {
     let current = true;
     searchGames(q).then((found) => {
-      if (current) setResults(found);
+      if (!current) return;
+
+      // Your own logs are searchable too. The catalogue will never contain
+      // every game you have played — anything logged through "log it anyway"
+      // exists only in your library — and a personal tracker where the one
+      // thing you cannot find is your own entry has it backwards.
+      const known = new Set(found.map((g) => g.id));
+      const mine = all
+        .filter((p) => {
+          const key = titleKey(p.title);
+          return !known.has(key) && (q === '' ? false : key.includes(titleKey(q)));
+        })
+        .map((p) => ({ id: titleKey(p.title), title: p.title, coverUrl: p.coverUrl }));
+
+      setResults([...found, ...mine]);
     });
     return () => {
       current = false;
     };
-  }, [q]);
+  }, [q, all]);
 
   return (
     <View style={{ flex: 1 }}>

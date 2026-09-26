@@ -173,3 +173,70 @@ export async function ping(): Promise<boolean> {
     return false;
   }
 }
+
+// --- profile -----------------------------------------------------------------
+
+export type Favorite = {
+  position: number;
+  title: string;
+  coverUrl?: string;
+};
+
+export type Profile = {
+  handle: string;
+  displayName: string;
+  bio: string;
+  favorites: Favorite[];
+};
+
+/** A partial update. Omitted fields are left alone by the server. */
+export type ProfileInput = {
+  handle?: string;
+  displayName?: string;
+  bio?: string;
+};
+
+/**
+ * Pull the server's message out of an error response.
+ *
+ * A handle clash is the one failure a person fixes by choosing differently, so
+ * it has to reach them in their own words rather than as "API 409".
+ */
+async function errorFrom(res: Response): Promise<Error> {
+  const detail: unknown = await res.json().catch(() => null);
+  if (typeof detail === 'object' && detail !== null && 'error' in detail) {
+    return new Error(String((detail as { error: unknown }).error));
+  }
+  return new Error(`API ${res.status}`);
+}
+
+export async function getProfile(): Promise<Profile> {
+  const res = await request('/v1/me/profile');
+  if (!res.ok) throw await errorFrom(res);
+  return (await res.json()) as Profile;
+}
+
+export async function updateProfile(input: ProfileInput): Promise<Profile> {
+  const res = await request('/v1/me/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw await errorFrom(res);
+  return (await res.json()) as Profile;
+}
+
+/** Replaces the whole set — send the four you want, get exactly those. */
+export async function setFavorites(favorites: Favorite[]): Promise<Profile> {
+  const res = await request('/v1/me/favorites', {
+    method: 'PUT',
+    body: JSON.stringify(
+      favorites.map((f) => ({
+        position: f.position,
+        title: f.title,
+        coverUrl: f.coverUrl ?? '',
+      })),
+    ),
+  });
+  if (!res.ok) throw await errorFrom(res);
+  return (await res.json()) as Profile;
+}
