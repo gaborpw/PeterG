@@ -81,6 +81,13 @@ Enforced where it can be; the rest is on whoever is writing.
     running with your privileges. Name what it does, what it replaces, and
     whether a few lines of our own would do instead.
 
+28. **If IGDB fixes it, wait for IGDB.** The catalogue sync replaces a whole
+    class of problem — game identity, metadata, art, search ranking. Do not
+    hand-build a second source for something it is about to supply. Note it in
+    "Waiting on the catalogue" below and move on. This is not a reason to defer
+    an actual bug: a screen that lies about the data it already has is fixed
+    today, whatever lands tomorrow.
+
 ## Code practices
 
 22. **Match the file you are in.** Its naming, its comment density, its
@@ -232,6 +239,35 @@ So nothing may gate a card, a feed row or a screen on the presence of body
 text; `body` stays optional and the no-text case gets a designed state.
 
 In code the object is `playthrough` (ADR 0002). Log is what people call it.
+
+## Waiting on the catalogue
+
+The IGDB sync (via Twitch credentials) is blocked on Peter having his phone for
+two-factor. These are deferred to it deliberately — do not build a workaround,
+and do not treat any of them as an open bug:
+
+- **Dark Souls has no cover.** Steam's search returns Dark Souls III for that
+  name, so `fetch-covers.mjs` correctly refuses it. IGDB has real game identity
+  and knows the difference between a game, its sequel and its remaster.
+- **`catalogue` in `src/data.ts` is typed by hand.** Year, developer and genres
+  for 15 games, unverified against any source. IGDB replaces the whole table
+  and is the point at which they become trustworthy.
+- **Search ranking is a substring match.** Fine for 15 games. IGDB ranks its
+  own results and the local branch in `searchGames` goes away.
+- **Cover and backdrop art is guessed from Steam app ids.** The whole of
+  `fetch-covers.mjs` is scaffolding and gets deleted.
+- **No ratings from Steam.** IGDB returns a user rating, a critic score and
+  counts natively, so do not integrate Steam's `appreviews` endpoint for this.
+  Steam's score is percent-positive from binary thumbs and is not a star
+  average; presenting it as one invents precision.
+- **Remasters, ports, DLC and bundles are not linked.** `parent_game_id` exists
+  in the schema (ADR 0002) and stays empty until there is a real catalogue to
+  populate it from.
+
+Not on this list, and not waiting for anything: **whether a game has an
+ending.** IGDB has no flag for it and 200k games is too many to mark by hand,
+so `aggregateFor` derives it from the logs — nobody has finished it and people
+log it as `ongoing`. If that detection is wrong, fix the detection.
 
 ## Cover art
 
