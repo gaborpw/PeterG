@@ -34,15 +34,34 @@ async function findAppId(title) {
   const { items = [] } = await res.json();
   if (items.length === 0) return null;
 
-  // Steam's search is fuzzy enough to return Elden Ring for "Elden Ring Nightreign".
-  // Require that the normalised title actually overlaps before trusting it.
+  // Steam's search is fuzzy enough to return Elden Ring for "Elden Ring
+  // Nightreign", and Dark Souls III for "Dark Souls". A prefix test accepts
+  // both of those, which is how a game ends up wearing its sequel's box art.
+  // Require the titles to match outright once edition noise is stripped.
   const want = normalise(title);
-  const hit = items.find((i) => {
-    const got = normalise(i.name);
-    return got === want || got.startsWith(want) || want.startsWith(got);
-  });
+  const hit =
+    items.find((i) => normalise(i.name) === want) ??
+    items.find((i) => stripEdition(normalise(i.name)) === stripEdition(want));
+
+  // No match is a fine outcome: the app falls back to a typographic cover,
+  // which is honest. The wrong game's art is not.
   return hit ? hit.id : null;
 }
+
+/**
+ * Drop the words publishers append to a re-release. "Dark Souls Remastered"
+ * and "Dark Souls" are the same game for our purposes; "Dark Souls III" is not,
+ * and survives this untouched.
+ */
+const stripEdition = (s) =>
+  s
+    .replace(
+      /\b(remastered|definitive|complete|enhanced|deluxe|ultimate|goty|game of the year)\b/g,
+      '',
+    )
+    .replace(/\bedition\b/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const normalise = (s) =>
   s

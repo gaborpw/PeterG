@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Cover } from '../components/Cover';
+import { gameByTitle } from '../catalogue';
 import type { Status } from '../data';
 import type { LogScreenProps } from '../navigation';
 import { useLibrary } from '../store';
@@ -45,6 +46,13 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
   const [liked, setLiked] = useState(editing?.liked ?? false);
   const [review, setReview] = useState(editing?.review ?? '');
 
+  // The game is settled before this screen opens — the picker chose it, or we
+  // are editing an entry that already has one. The field stays editable only
+  // on the "log it anyway" path, where nothing in the catalogue matched.
+  const chosen = editing?.title ?? route.params?.title;
+  const art = chosen === undefined ? undefined : gameByTitle(chosen);
+  const coverUrl = editing?.coverUrl ?? route.params?.coverUrl ?? art?.coverUrl;
+
   const value = rating > 0 && half ? rating - 0.5 : rating;
   const canSave = title.trim().length > 0;
 
@@ -58,7 +66,7 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
       rating: value > 0 ? value : undefined,
       liked,
       review: review.trim() === '' ? undefined : review.trim(),
-      coverUrl: editing?.coverUrl ?? route.params?.coverUrl,
+      coverUrl,
     });
     navigation.goBack();
   }
@@ -67,30 +75,38 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
     <View style={{ flex: 1, backgroundColor: color.bg }}>
       <ScrollView contentContainerStyle={{ padding: space.xl, gap: space.xxl, paddingBottom: 40 }}>
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
-          <Cover
-            title={title || 'Untitled'}
-            url={editing?.coverUrl ?? route.params?.coverUrl}
-            width={56}
-            height={78}
-          />
+          <Cover title={title || 'Untitled'} url={coverUrl} width={56} height={78} />
           <View style={{ flex: 1 }}>
             <Label>Game</Label>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="What did you play?"
-              placeholderTextColor={color.textFaint}
-              style={{
-                minHeight: 46,
-                paddingHorizontal: 13,
-                borderRadius: radius.md,
-                backgroundColor: color.surface,
-                borderWidth: 1,
-                borderColor: color.border,
-                color: color.text,
-                fontSize: 15,
-              }}
-            />
+            {chosen === undefined ? (
+              <TextInput
+                value={title}
+                onChangeText={setTitle}
+                placeholder="What did you play?"
+                placeholderTextColor={color.textFaint}
+                style={{
+                  minHeight: 46,
+                  paddingHorizontal: 13,
+                  borderRadius: radius.md,
+                  backgroundColor: color.surface,
+                  borderWidth: 1,
+                  borderColor: color.border,
+                  color: color.text,
+                  fontSize: 15,
+                }}
+              />
+            ) : (
+              <>
+                <Text style={{ fontSize: 18, fontWeight: '600', color: color.text }}>
+                  {title}
+                </Text>
+                {art?.developer !== undefined && (
+                  <Text style={{ fontSize: 12, color: color.textFaint, marginTop: 5 }}>
+                    {art.year} · {art.developer}
+                  </Text>
+                )}
+              </>
+            )}
           </View>
         </View>
 

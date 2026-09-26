@@ -5,6 +5,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import type { RootStackParamList } from './src/navigation';
 import { GameScreen } from './src/screens/GameScreen';
 import { LogScreen } from './src/screens/LogScreen';
+import { PickGameScreen } from './src/screens/PickGameScreen';
 import { EntryScreen } from './src/screens/EntryScreen';
 import { PlaythroughScreen } from './src/screens/PlaythroughScreen';
 import { TabsScreen } from './src/screens/TabsScreen';
@@ -54,6 +55,13 @@ export default function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="Entry" component={EntryScreen} options={{ headerShown: false }} />
+            {/* Both steps of logging are one modal: the picker replaces itself
+                with the form, so dismissing either gets you out in one go. */}
+            <Stack.Screen
+              name="PickGame"
+              component={PickGameScreen}
+              options={{ title: 'Log a game', presentation: 'modal' }}
+            />
             <Stack.Screen
               name="Log"
               component={LogScreen}

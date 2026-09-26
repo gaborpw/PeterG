@@ -14,11 +14,13 @@ export function TabsScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
-  // The centre button pushes the log screen rather than switching tabs, so you
-  // never lose the screen you were on to log something.
+  // The centre button pushes the picker rather than switching tabs, so you
+  // never lose the screen you were on to log something. Choosing a game
+  // replaces the picker with the form, so Back returns here rather than
+  // walking you through the search you already finished.
   function onTab(next: Tab) {
     if (next === 'log') {
-      navigation.navigate('Log');
+      navigation.navigate('PickGame');
       return;
     }
     setTab(next);
