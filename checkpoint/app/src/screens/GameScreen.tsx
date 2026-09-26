@@ -88,11 +88,21 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
               sub={agg.ratings === 0 ? 'no ratings yet' : plural(agg.ratings, 'rating')}
               accent
             />
-            <StatCell
-              label="Finish rate"
-              value={`${agg.finishRate ?? 0}%`}
-              sub={`of ${plural(agg.logs, 'log')}`}
-            />
+            {/* A game with no ending gets the number that means something for
+                it, rather than a finish rate that can only ever read zero. */}
+            {agg.endless ? (
+              <StatCell
+                label="Still playing"
+                value={`${agg.stillPlaying ?? 0}%`}
+                sub="no ending to reach"
+              />
+            ) : (
+              <StatCell
+                label="Finish rate"
+                value={`${agg.finishRate ?? 0}%`}
+                sub={`of ${plural(agg.logs, 'log')}`}
+              />
+            )}
           </View>
 
           {/* Percentages over three logs describe the sample, not the game. */}

@@ -421,7 +421,16 @@ export type GameAggregate = {
   ratings: number;
   avgRating?: number;
   medianHours?: number;
+  /**
+   * Absent when the game has no ending to reach. A roguelike sitting at "0%
+   * finished" reads as a game people fail at, rather than one with nothing to
+   * fail at — true arithmetic, wrong claim.
+   */
   finishRate?: number;
+  /** The number that replaces it: share of logs still in progress. */
+  stillPlaying?: number;
+  /** Nobody has finished it and people log it as ongoing. See above. */
+  endless: boolean;
   funnel?: { label: string; pct: number }[];
 };
 
@@ -440,7 +449,7 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
   const key = titleKey(title);
   const logs = [...communityLogs, ...own].filter((l) => titleKey(l.title) === key);
 
-  if (logs.length === 0) return { logs: 0, ratings: 0 };
+  if (logs.length === 0) return { logs: 0, ratings: 0, endless: false };
 
   const rated = logs.filter((l) => typeof l.rating === 'number');
   const avgRating =
@@ -458,14 +467,24 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
       : undefined;
 
   const finished = logs.filter((l) => l.status === 'finished').length;
+  const ongoing = logs.filter((l) => l.status === 'ongoing').length;
   const pct = (n: number) => Math.round((n / logs.length) * 100);
+
+  // Derived, not curated: a game nobody has finished that people keep logging
+  // as ongoing is one without an ending. IGDB has no flag for this, and 200k
+  // games is too many to mark by hand, so the logs have to say it.
+  const endless = finished === 0 && ongoing > 0;
 
   return {
     logs: logs.length,
     ratings: rated.length,
     avgRating,
     medianHours,
-    finishRate: pct(finished),
+    endless,
+    finishRate: endless ? undefined : pct(finished),
+    stillPlaying: endless
+      ? pct(logs.filter((l) => l.status === 'playing' || l.status === 'ongoing').length)
+      : undefined,
     // Thresholds scale to the game. Fixed 5h/20h buckets put "past 20h" below
     // "finished" on anything short, which is true and reads as a broken chart.
     funnel:
@@ -473,11 +492,17 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
         ? (() => {
             const early = Math.max(2, Math.round(medianHours * 0.25));
             const late = Math.max(early + 1, Math.round(medianHours * 0.75));
+            const tier = (h: number) => pct(logs.filter((l) => l.hours >= h).length);
             return [
               { label: 'Started', pct: 100 },
-              { label: `Past ${early}h`, pct: pct(logs.filter((l) => l.hours >= early).length) },
-              { label: `Past ${late}h`, pct: pct(logs.filter((l) => l.hours >= late).length) },
-              { label: 'Finished', pct: pct(finished) },
+              { label: `Past ${early}h`, pct: tier(early) },
+              { label: `Past ${late}h`, pct: tier(late) },
+              // Without an ending, "how far people get" is just how long they
+              // stay, so the last rung is another hour tier rather than a
+              // Finished bar that would always read zero.
+              endless
+                ? { label: `Past ${medianHours * 2}h`, pct: tier(medianHours * 2) }
+                : { label: 'Finished', pct: pct(finished) },
             ];
           })()
         : undefined,
