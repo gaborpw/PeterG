@@ -21,7 +21,11 @@ export function Stars({ value, size = 13 }: Props) {
   );
 }
 
-function Star({ fill, size }: { fill: number; size: number }) {
+/**
+ * One star, filled by a fraction of its width. Exported because the log form's
+ * rating picker needs a star per tap target rather than a row of five.
+ */
+export function Star({ fill, size }: { fill: number; size: number }) {
   // The glyph is a touch narrower than its font size; the box matches the
   // glyph so five of them sit evenly rather than drifting apart.
   const box = size * 0.94;

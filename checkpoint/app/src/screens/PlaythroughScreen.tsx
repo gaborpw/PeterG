@@ -1,4 +1,5 @@
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { platformLabel } from '../platforms';
 import { Avatar } from '../components/Avatar';
 import { Backdrop } from '../components/Backdrop';
 import { Chip } from '../components/Chip';
@@ -110,7 +111,7 @@ export function PlaythroughScreen({ route, navigation }: PlaythroughScreenProps)
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 16 }}>
-          {p.platform !== undefined && p.platform !== '' && <Chip label={p.platform} />}
+          {p.platform !== undefined && p.platform !== '' && <Chip label={platformLabel(p.platform)} />}
           {p.lastPlayed !== undefined && <Chip label={`played ${p.lastPlayed}`} />}
           {p.droppedAtHour !== undefined && (
             <Chip label={`dropped at ${p.droppedAtHour}h`} tone="warm" />

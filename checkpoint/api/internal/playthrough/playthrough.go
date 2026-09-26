@@ -181,13 +181,23 @@ func (r *Repo) Save(ctx context.Context, accountID int64, in Input) (Playthrough
 		return Playthrough{}, fmt.Errorf("upsert playthrough: %w", err)
 	}
 
-	if in.Review != nil && strings.TrimSpace(*in.Review) != "" {
-		_, err = tx.ExecContext(ctx, `
-			INSERT INTO review (playthrough_id, body, progress)
-			VALUES ($1, $2, 'midgame')
-			ON CONFLICT (playthrough_id) DO UPDATE
-			  SET body = EXCLUDED.body, edited_at = now(), deleted_at = NULL`,
-			id, strings.TrimSpace(*in.Review))
+	// A review the form sent, even an empty one, is an instruction. Treating
+	// empty as "no change" meant a review could be written but never taken
+	// back: clearing the box and saving left the old text in place.
+	if in.Review != nil {
+		body := strings.TrimSpace(*in.Review)
+		if body == "" {
+			_, err = tx.ExecContext(ctx,
+				`UPDATE review SET deleted_at = now() WHERE playthrough_id = $1 AND deleted_at IS NULL`,
+				id)
+		} else {
+			_, err = tx.ExecContext(ctx, `
+				INSERT INTO review (playthrough_id, body, progress)
+				VALUES ($1, $2, 'midgame')
+				ON CONFLICT (playthrough_id) DO UPDATE
+				  SET body = EXCLUDED.body, edited_at = now(), deleted_at = NULL`,
+				id, body)
+		}
 		if err != nil {
 			return Playthrough{}, fmt.Errorf("upsert review: %w", err)
 		}

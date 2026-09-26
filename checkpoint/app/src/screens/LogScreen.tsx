@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Cover } from '../components/Cover';
+import { Star } from '../components/Stars';
 import { gameByTitle } from '../catalogue';
 import { PLATFORMS, PLATFORM_VALUES } from '../platforms';
 import type { Status } from '../data';
@@ -64,7 +65,9 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
       hours: Number.parseFloat(hours) || 0,
       rating: value > 0 ? value : undefined,
       liked,
-      review: review.trim() === '' ? undefined : review.trim(),
+      // Sent even when empty. Undefined reads as "leave it alone" on the way
+      // through, which made a review impossible to take back once written.
+      review: review.trim(),
       coverUrl,
     });
     navigation.goBack();
@@ -182,15 +185,10 @@ export function LogScreen({ route, navigation }: LogScreenProps) {
                   accessibilityLabel={`Rate ${n} out of 5`}
                   style={{ width: 46, height: 46, alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <View
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
-                      backgroundColor: filled || isHalf ? color.star : color.starEmpty,
-                      opacity: isHalf ? 0.55 : 1,
-                    }}
-                  />
+                  {/* The same star the rest of the app draws — a picker made
+                      of circles beside star ratings everywhere else is two
+                      different scales as far as anyone reading it knows. */}
+                  <Star fill={filled ? 1 : isHalf ? 0.5 : 0} size={26} />
                 </Pressable>
               );
             })}

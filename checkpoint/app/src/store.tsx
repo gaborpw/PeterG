@@ -125,6 +125,11 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         hours: entry.hours,
         rating: entry.rating,
         liked: entry.liked,
+        // Every field the form can set has to be here. Leaving review out
+        // meant the server stored it and the app forgot it the instant you
+        // saved: reopening the entry showed an empty box over text that was
+        // sitting safely in the database.
+        review: entry.review,
         coverUrl: entry.coverUrl ?? (i === -1 ? undefined : current[i].coverUrl),
         // Wanting or shelving a game is not playing it. Stamping every save
         // with "today" is what made a wishlisted game claim it was played.
