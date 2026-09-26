@@ -4,6 +4,7 @@ import { Avatar } from '../components/Avatar';
 import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
+import { gameByTitle } from '../catalogue';
 import { favourites, profile } from '../data';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
@@ -67,7 +68,15 @@ export function ProfileScreen() {
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {favourites.map((f) => (
-            <Cover key={f.id} title={f.title} url={f.coverUrl} width={76} height={104} />
+            // Favourites are titles, not full records, so their art comes from
+            // the catalogue rather than being duplicated alongside them.
+            <Cover
+              key={f.id}
+              title={f.title}
+              url={f.coverUrl ?? gameByTitle(f.title)?.coverUrl}
+              width={76}
+              height={104}
+            />
           ))}
         </View>
       </View>

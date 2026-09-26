@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { playthroughMeta } from '../format';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Chip } from '../components/Chip';
@@ -142,8 +143,7 @@ export function LibraryScreen() {
                 {p.title}
               </Text>
               <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 4 }}>
-                {p.platform}
-                {p.lastPlayed !== undefined ? ` · last played ${p.lastPlayed}` : ''}
+                {playthroughMeta(p)}
               </Text>
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>

@@ -5,6 +5,7 @@ import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { aggregateFor, factsFor, reviewsFor, type GameReview } from '../data';
+import { playthroughMeta } from '../format';
 import type { GameScreenProps } from '../navigation';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
@@ -218,18 +219,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
               <Text style={{ fontSize: 14, color: color.textDim }}>h</Text>
             </Text>
             <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 5 }}>
-              {[
-                yours.platform,
-                // "last played today" is a lie about a game you have only
-                // wished for, and an empty platform left a leading separator.
-                yours.status === 'wishlist'
-                  ? 'not started'
-                  : yours.lastPlayed !== undefined
-                    ? `last played ${yours.lastPlayed}`
-                    : undefined,
-              ]
-                .filter((part) => part !== undefined && part !== '')
-                .join(' · ')}
+              {playthroughMeta(yours)}
             </Text>
             <Pressable
               onPress={() => navigation.navigate('Log', { title, coverUrl, editId: yours.id })}
