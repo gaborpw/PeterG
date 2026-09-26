@@ -5,6 +5,7 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { gameByTitle } from '../catalogue';
+import { platformLabel } from '../platforms';
 import { useTabs } from '../tabs';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
@@ -162,7 +163,9 @@ export function ProfileScreen() {
                   {p.title}
                 </Text>
                 <Text style={{ fontSize: 11, color: color.textFaint, marginTop: 3 }}>
-                  {p.platform} · {p.status}
+                  {[p.platform === '' ? undefined : platformLabel(p.platform), p.status]
+                    .filter((part) => part !== undefined)
+                    .join(' · ')}
                 </Text>
               </View>
               <Text style={{ fontSize: 15, fontWeight: '600', color: color.active }}>

@@ -46,15 +46,25 @@ export function Backdrop({ title, url, onBack, height = 260 }: Props) {
       ) : (
         // The title set large and low-contrast reads as a deliberate cover
         // treatment; an empty tinted box reads as a loading bug.
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 22 }}>
+        // Centred in the clear band above the scrim, not in the whole box.
+        // Centring it in the full height put the title underneath the fade,
+        // where it read as a smudge below the art rather than as the art.
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            paddingHorizontal: 22,
+            paddingBottom: height * 0.55,
+          }}
+        >
           <Text
-            numberOfLines={3}
+            numberOfLines={2}
             style={{
-              fontSize: 34,
+              fontSize: 30,
               fontWeight: '800',
               letterSpacing: -0.5,
               color: color.text,
-              opacity: 0.13,
+              opacity: 0.22,
             }}
           >
             {title}
