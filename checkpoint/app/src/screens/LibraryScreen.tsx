@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as api from '../api';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
+import { Menu, MenuButton, MenuItem } from '../components/Menu';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { Sparkline, toDays } from '../components/Sparkline';
 import { Stars } from '../components/Stars';
@@ -279,45 +280,16 @@ export function LibraryScreen({
               )}
             </View>
 
-            <Pressable
+            <MenuButton
+              open={menuFor === p.id}
               onPress={() => setMenuFor((open) => (open === p.id ? null : p.id))}
-              accessibilityRole="button"
-              accessibilityLabel={`Actions for ${p.title}`}
-              accessibilityState={{ expanded: menuFor === p.id }}
-              hitSlop={8}
-              style={{
-                width: 44,
-                height: 44,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 19,
-                  color: menuFor === p.id ? color.text : color.textFaint,
-                  marginTop: -4,
-                }}
-              >
-                ⋯
-              </Text>
-            </Pressable>
+              label={`Actions for ${p.title}`}
+            />
 
             {menuFor === p.id && (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 52,
-                  right: 10,
-                  minWidth: 168,
-                  borderRadius: radius.md,
-                  backgroundColor: color.surface2,
-                  borderWidth: 1,
-                  borderColor: color.border,
-                  overflow: 'hidden',
-                }}
-              >
+              <Menu>
                 <MenuItem
+                  first
                   label="Edit this log"
                   onPress={() => {
                     setMenuFor(null);
@@ -328,35 +300,13 @@ export function LibraryScreen({
                     });
                   }}
                 />
-                <View style={{ height: 1, backgroundColor: color.border }} />
                 <MenuItem label="Remove" destructive onPress={() => confirmRemove(p)} />
-              </View>
+              </Menu>
             )}
           </Pressable>
         ))}
       </ScrollView>
     </View>
-  );
-}
-
-/** One row of the row menu. */
-function MenuItem({
-  label,
-  onPress,
-  destructive,
-}: {
-  label: string;
-  onPress: () => void;
-  destructive?: boolean;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 14 }}
-    >
-      <Text style={{ fontSize: 13.5, color: destructive ? color.warm : color.text }}>{label}</Text>
-    </Pressable>
   );
 }
 

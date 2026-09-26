@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
+import { Menu, MenuButton, MenuItem } from '../components/Menu';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
 import { aggregateFor, factsFor, reviewsFor, type GameReview } from '../data';
@@ -16,7 +17,8 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
   // stays collapsed until you ask for it. docs/spec.md 3.4. Tracked per review
   // rather than as one flag, so revealing one does not uncover the rest.
   const [revealed, setRevealed] = useState<string[]>([]);
-  const { all, log } = useLibrary();
+  const { all, log, remove } = useLibrary();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const { title, coverUrl } = route.params;
 
@@ -38,7 +40,9 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
       style={{ flex: 1 }}
       contentContainerStyle={{ padding: space.xl, gap: space.xxl }}
     >
-      <View style={{ flexDirection: 'row', gap: space.lg }}>
+      {/* Lifted while open so the panel draws over the ratings block rather
+          than behind it. */}
+      <View style={{ flexDirection: 'row', gap: space.lg, zIndex: menuOpen ? 10 : 0 }}>
         <Cover title={title} url={coverUrl} width={100} height={134} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 27, fontWeight: '700', color: color.text }}>
@@ -56,6 +60,74 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
                 ))}
               </View>
             </>
+          )}
+        </View>
+
+        <View>
+          <MenuButton
+            open={menuOpen}
+            onPress={() => setMenuOpen((open) => !open)}
+            label={`Actions for ${title}`}
+          />
+
+          {menuOpen && (
+            <Menu>
+              {/* What you can do depends on whether this game is yours yet.
+                  Offering "log a session" for something you have never played
+                  would be an action with nothing to attach to. */}
+              {yours === undefined ? (
+                <>
+                  <MenuItem
+                    first
+                    label="Log this game"
+                    onPress={() => {
+                      setMenuOpen(false);
+                      navigation.navigate('Log', { title, coverUrl });
+                    }}
+                  />
+                  <MenuItem
+                    label="Add to wishlist"
+                    onPress={() => {
+                      setMenuOpen(false);
+                      log({ title, platform: '', status: 'wishlist', hours: 0, coverUrl });
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <MenuItem
+                    first
+                    label="Log a session"
+                    onPress={() => {
+                      setMenuOpen(false);
+                      navigation.navigate('LogSession');
+                    }}
+                  />
+                  <MenuItem
+                    label={yours.review === undefined ? 'Write a review' : 'Edit your review'}
+                    onPress={() => {
+                      setMenuOpen(false);
+                      navigation.navigate('Log', { title, coverUrl, editId: yours.id });
+                    }}
+                  />
+                  <MenuItem
+                    label="Remove from library"
+                    destructive
+                    onPress={() => {
+                      setMenuOpen(false);
+                      Alert.alert(
+                        'Delete this entry?',
+                        `${title} will be removed from your library.`,
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          { text: 'Delete', style: 'destructive', onPress: () => remove(yours.id) },
+                        ],
+                      );
+                    }}
+                  />
+                </>
+              )}
+            </Menu>
           )}
         </View>
       </View>
