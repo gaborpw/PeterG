@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
+import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
 import { aggregateFor, factsFor, reviewsFor, type GameReview } from '../data';
 import { playthroughMeta } from '../format';
@@ -79,17 +80,15 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
         </View>
       ) : (
         <>
+          {/* Ratings get their own block rather than a stat cell: the spread
+              carries information the average flattens away. */}
+          <RatingSummary agg={agg} />
+
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <StatCell
               label="Avg playtime"
               value={agg.medianHours === undefined ? '—' : `${agg.medianHours}h`}
               sub={agg.medianHours === undefined ? 'nobody has played it' : 'median logged'}
-            />
-            <StatCell
-              label="Avg rating"
-              value={agg.avgRating === undefined ? '—' : agg.avgRating.toFixed(1)}
-              sub={agg.ratings === 0 ? 'no ratings yet' : plural(agg.ratings, 'rating')}
-              accent
             />
             {/* A game with no ending gets the number that means something for
                 it, rather than a finish rate that can only ever read zero. */}
@@ -277,12 +276,10 @@ function StatCell({
   label,
   value,
   sub,
-  accent,
 }: {
   label: string;
   value: string;
   sub: string;
-  accent?: boolean;
 }) {
   return (
     <View
@@ -303,7 +300,7 @@ function StatCell({
           fontSize: 25,
           fontWeight: '600',
           marginTop: 7,
-          color: accent ? color.star : color.text,
+          color: color.text,
         }}
       >
         {value}

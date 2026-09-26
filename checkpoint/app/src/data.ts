@@ -436,6 +436,15 @@ export type GameAggregate = {
   finishRate?: number;
   /** The number that replaces it: share of logs still in progress. */
   stillPlaying?: number;
+  /**
+   * How the ratings are spread, as ten counts from half a star to five.
+   *
+   * An average alone hides the shape. A game everyone calls a four and one
+   * half the room loves and half the room hates both average out near the
+   * same number, and they are not the same game — which is exactly what
+   * Letterboxd's histogram exists to show.
+   */
+  distribution: number[];
   /** Nobody has finished it and people log it as ongoing. See above. */
   endless: boolean;
   funnel?: { label: string; pct: number }[];
@@ -456,9 +465,19 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
   const key = titleKey(title);
   const logs = [...communityLogs, ...own].filter((l) => titleKey(l.title) === key);
 
-  if (logs.length === 0) return { logs: 0, ratings: 0, endless: false };
+  if (logs.length === 0) {
+    return { logs: 0, ratings: 0, endless: false, distribution: new Array(10).fill(0) };
+  }
 
   const rated = logs.filter((l) => typeof l.rating === 'number');
+
+  // Ten buckets: index 0 is half a star, index 9 is five. The stored scale is
+  // already half-steps, so this is a bucket per possible rating, not binning.
+  const distribution = new Array<number>(10).fill(0);
+  for (const l of rated) {
+    const bucket = Math.round((l.rating ?? 0) * 2) - 1;
+    if (bucket >= 0 && bucket < 10) distribution[bucket]++;
+  }
   const avgRating =
     rated.length > 0
       ? rated.reduce((a, l) => a + (l.rating ?? 0), 0) / rated.length
@@ -488,6 +507,7 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
     avgRating,
     medianHours,
     endless,
+    distribution,
     finishRate: endless ? undefined : pct(finished),
     stillPlaying: endless
       ? pct(logs.filter((l) => l.status === 'playing' || l.status === 'ongoing').length)
