@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Cover } from '../components/Cover';
 import type { LogSessionScreenProps } from '../navigation';
 import { useLibrary } from '../store';
@@ -18,6 +18,7 @@ import { color, radius, space } from '../theme';
 export function LogSessionScreen({ navigation }: LogSessionScreenProps) {
   const { byStatus, logSessions, lastError } = useLibrary();
   const [hours, setHours] = useState<Record<string, number>>({});
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   // Paused games are here on purpose: picking one back up after a month is
@@ -27,7 +28,7 @@ export function LogSessionScreen({ navigation }: LogSessionScreenProps) {
 
   const entries = Object.entries(hours)
     .filter(([, h]) => h > 0)
-    .map(([id, h]) => ({ id, hours: h }));
+    .map(([id, h]) => ({ id, hours: h, note: notes[id]?.trim() ?? '' }));
 
   const total = entries.reduce((sum, e) => sum + e.hours, 0);
 
@@ -83,9 +84,6 @@ export function LogSessionScreen({ navigation }: LogSessionScreenProps) {
               <View
                 key={p.id}
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
                   padding: 11,
                   borderRadius: radius.lg,
                   backgroundColor: color.surface,
@@ -93,30 +91,56 @@ export function LogSessionScreen({ navigation }: LogSessionScreenProps) {
                   borderColor: added > 0 ? '#33513F' : color.border,
                 }}
               >
-                <Cover title={p.title} url={p.coverUrl} width={40} height={56} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: color.text }}>
-                    {p.title}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                  <Cover title={p.title} url={p.coverUrl} width={40} height={56} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: color.text }}>
+                      {p.title}
+                    </Text>
+                    <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 4 }}>
+                      {p.hours}h logged
+                      {added > 0 ? ` → ${p.hours + added}h` : ''}
+                    </Text>
+                  </View>
+
+                  <Step label="−" onPress={() => bump(p.id, -0.5)} dim={added === 0} />
+                  <Text
+                    style={{
+                      minWidth: 42,
+                      textAlign: 'center',
+                      fontSize: 15,
+                      fontWeight: '600',
+                      color: added > 0 ? color.active : color.textFaint,
+                    }}
+                  >
+                    {added > 0 ? `${added}h` : '—'}
                   </Text>
-                  <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 4 }}>
-                    {p.hours}h logged
-                    {added > 0 ? ` → ${p.hours + added}h` : ''}
-                  </Text>
+                  <Step label="+" onPress={() => bump(p.id, 0.5)} />
                 </View>
 
-                <Step label="−" onPress={() => bump(p.id, -0.5)} dim={added === 0} />
-                <Text
-                  style={{
-                    minWidth: 42,
-                    textAlign: 'center',
-                    fontSize: 15,
-                    fontWeight: '600',
-                    color: added > 0 ? color.active : color.textFaint,
-                  }}
-                >
-                  {added > 0 ? `${added}h` : '—'}
-                </Text>
-                <Step label="+" onPress={() => bump(p.id, 0.5)} />
+                {/* Only once there is time to describe. A note box on every
+                    row, most of them blank, is a form; one that appears when
+                    you add half an hour is an invitation. */}
+                {added > 0 && (
+                  <TextInput
+                    value={notes[p.id] ?? ''}
+                    onChangeText={(text) => setNotes((n) => ({ ...n, [p.id]: text }))}
+                    placeholder="How was it? (optional)"
+                    placeholderTextColor={color.textFaint}
+                    maxLength={280}
+                    style={{
+                      marginTop: 10,
+                      minHeight: 42,
+                      paddingHorizontal: 11,
+                      borderRadius: radius.md,
+                      backgroundColor: color.bg,
+                      borderWidth: 1,
+                      borderColor: color.border,
+                      color: color.text,
+                      fontSize: 13.5,
+                    }}
+                  />
+                )}
               </View>
             );
           })
@@ -126,39 +150,56 @@ export function LogSessionScreen({ navigation }: LogSessionScreenProps) {
           <Text style={{ fontSize: 12.5, color: color.warm, lineHeight: 18 }}>{lastError}</Text>
         )}
 
-        <Pressable
-          onPress={save}
-          disabled={entries.length === 0 || saving}
-          accessibilityRole="button"
-          style={{
-            minHeight: 52,
-            borderRadius: radius.md,
-            backgroundColor: color.star,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: entries.length === 0 || saving ? 0.4 : 1,
-          }}
-        >
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#14120F' }}>
-            {saving
-              ? 'Saving…'
-              : entries.length === 0
-                ? 'Add some time'
+        {/* Whichever action you are actually here for is the filled one.
+            With time added, that is the session; with none, you have opened
+            this screen to start something, so that becomes primary. Two
+            filled buttons would mean neither is. */}
+        {entries.length > 0 && (
+          <Pressable
+            onPress={save}
+            disabled={saving}
+            accessibilityRole="button"
+            style={{
+              minHeight: 54,
+              borderRadius: radius.md,
+              backgroundColor: color.star,
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: saving ? 0.5 : 1,
+            }}
+          >
+            <Text style={{ fontSize: 15.5, fontWeight: '700', color: '#14120F' }}>
+              {saving
+                ? 'Saving…'
                 : `Log ${total}h across ${entries.length} ${entries.length === 1 ? 'game' : 'games'}`}
-          </Text>
-        </Pressable>
+            </Text>
+          </Pressable>
+        )}
 
-        {/* Starting something new is a different job from continuing one, and
-            it needs the whole form. */}
         <Pressable
           onPress={() => navigation.replace('PickGame')}
           accessibilityRole="button"
-          style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            minHeight: 54,
+            borderRadius: radius.md,
+            backgroundColor: entries.length === 0 ? color.star : 'transparent',
+            borderWidth: entries.length === 0 ? 0 : 1,
+            borderColor: color.star,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <Text style={{ fontSize: 13.5, fontWeight: '500', color: color.text }}>
-            Log something new instead ›
+          <Text
+            style={{
+              fontSize: 15.5,
+              fontWeight: '700',
+              color: entries.length === 0 ? '#14120F' : color.star,
+            }}
+          >
+            Log a new game
           </Text>
         </Pressable>
+
       </ScrollView>
     </View>
   );

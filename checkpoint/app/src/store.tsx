@@ -46,7 +46,7 @@ type Library = {
   log(entry: NewLog): void;
   remove(id: string): void;
   /** Record a sitting across one or more games. Resolves false on failure. */
-  logSessions(entries: { id: string; hours: number }[]): Promise<boolean>;
+  logSessions(entries: { id: string; hours: number; note?: string }[]): Promise<boolean>;
 };
 
 const LibraryContext = createContext<Library | null>(null);
@@ -178,7 +178,8 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
    * no set of sessions adds up to. The server answers with the whole library
    * and that is what we keep.
    */
-  const logSessions = useCallback(async (entries: { id: string; hours: number }[]) => {
+  const logSessions = useCallback(
+    async (entries: { id: string; hours: number; note?: string }[]) => {
     const today = new Date();
     const playedOn = [
       today.getFullYear(),
@@ -192,7 +193,7 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
           playthroughId: Number(e.id),
           hours: e.hours,
           playedOn,
-          note: '',
+          note: e.note ?? '',
         })),
       );
       setAll(fresh);
@@ -204,7 +205,9 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       setLastError(err instanceof Error ? err.message : 'could not reach the server');
       return false;
     }
-  }, []);
+  },
+    [],
+  );
 
   const value = useMemo<Library>(
     () => ({
