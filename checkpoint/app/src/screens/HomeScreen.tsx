@@ -5,7 +5,7 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { Stars } from '../components/Stars';
-import { friendsPlaying, popularReviews, popularThisWeek } from '../data';
+import { aggregateFor, friendsPlaying, popularReviews, popularThisWeek } from '../data';
 import { color, space } from '../theme';
 
 const POSTER_W = 112;
@@ -21,9 +21,11 @@ export function HomeScreen() {
       </View>
 
       <View style={{ marginBottom: 30 }}>
-        <SectionHeading title="Popular this week" meta="See all" />
+        <SectionHeading title="Popular this week" />
         <PosterRow>
-          {popularThisWeek.map((g) => (
+          {popularThisWeek.map((g) => {
+            const agg = aggregateFor(g.title);
+            return (
             <Pressable
               key={g.id}
               onPress={() => navigation.navigate('Game', { title: g.title, coverUrl: g.coverUrl })}
@@ -40,16 +42,22 @@ export function HomeScreen() {
                   marginTop: 9,
                 }}
               >
-                <Stars value={g.avgRating} size={10} />
-                <Text style={{ fontSize: 11, color: color.textDim }}>
-                  {g.avgRating.toFixed(1)}
-                </Text>
+                {/* One source for this number. See popularThisWeek in data.ts. */}
+                {agg.avgRating !== undefined && (
+                  <>
+                    <Stars value={agg.avgRating} size={10} />
+                    <Text style={{ fontSize: 11, color: color.textDim }}>
+                      {agg.avgRating.toFixed(1)}
+                    </Text>
+                  </>
+                )}
               </View>
               <Text style={{ fontSize: 10.5, color: color.textFaint, marginTop: 3 }}>
-                {g.playersThisWeek} playing
+                {agg.logs === 0 ? 'no logs yet' : `${agg.logs} ${agg.logs === 1 ? 'log' : 'logs'}`}
               </Text>
             </Pressable>
-          ))}
+            );
+          })}
         </PosterRow>
       </View>
 

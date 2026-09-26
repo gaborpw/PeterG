@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Cover } from '../components/Cover';
 import { gameByTitle } from '../catalogue';
+import { PLATFORMS, PLATFORM_VALUES } from '../platforms';
 import type { Status } from '../data';
 import type { LogScreenProps } from '../navigation';
 import { useLibrary } from '../store';
@@ -15,22 +16,6 @@ const STATUSES: { key: Status; label: string }[] = [
   { key: 'ongoing', label: 'Ongoing' },
   { key: 'backlog', label: 'Backlog' },
 ];
-
-/**
- * Value is what the API stores and returns — platform.abbreviation, seeded in
- * migration 0002. Sending "Steam Deck" saves fine, because the lookup also
- * matches on name, but it reads back as "Deck", which was not in this list:
- * editing a Steam Deck entry silently reset it to PC. Send what comes back.
- */
-const PLATFORMS: { value: string; label: string }[] = [
-  { value: 'PS5', label: 'PS5' },
-  { value: 'Xbox', label: 'Xbox' },
-  { value: 'Switch', label: 'Switch' },
-  { value: 'PC', label: 'PC' },
-  { value: 'Deck', label: 'Steam Deck' },
-];
-
-const PLATFORM_VALUES = PLATFORMS.map((p) => p.value);
 
 export function LogScreen({ route, navigation }: LogScreenProps) {
   const { log, all } = useLibrary();

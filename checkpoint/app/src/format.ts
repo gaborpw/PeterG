@@ -1,4 +1,5 @@
 import type { Status } from './data';
+import { platformLabel } from './platforms';
 
 /**
  * The "PC · last played today" line that sits under a game.
@@ -20,5 +21,5 @@ export function playthroughMeta(p: {
         ? `last played ${p.lastPlayed}`
         : undefined;
 
-  return [p.platform, when].filter((part) => part !== undefined && part !== '').join(' · ');
+  return [p.platform === '' ? undefined : platformLabel(p.platform), when].filter((part) => part !== undefined && part !== '').join(' · ');
 }

@@ -56,18 +56,23 @@ export function SearchScreen() {
         </Text>
 
         {q === ''
-          ? popularThisWeek.map((g) => (
-              <Row
-                key={g.id}
-                title={g.title}
-                coverUrl={g.coverUrl}
-                rating={g.avgRating}
-                sub={`${g.playersThisWeek} playing`}
-                onPress={() =>
-                  navigation.navigate('Game', { title: g.title, coverUrl: g.coverUrl })
-                }
-              />
-            ))
+          ? popularThisWeek.map((g) => {
+              // Trending is an ordering; the numbers come from the logs, same
+              // as everywhere else, so a game reads the same on every screen.
+              const agg = aggregateFor(g.title);
+              return (
+                <Row
+                  key={g.id}
+                  title={g.title}
+                  coverUrl={g.coverUrl}
+                  rating={agg.avgRating}
+                  sub={agg.logs === 0 ? 'no logs yet' : `${agg.logs} logs`}
+                  onPress={() =>
+                    navigation.navigate('Game', { title: g.title, coverUrl: g.coverUrl })
+                  }
+                />
+              );
+            })
           : results.map((g) => {
               const agg = aggregateFor(g.title);
               return (

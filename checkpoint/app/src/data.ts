@@ -141,20 +141,27 @@ export type PopularGame = {
   title: string;
   coverUrl?: string;
   backdropUrl?: string;
-  avgRating: number;
-  /** People who logged a session this week. */
-  playersThisWeek: string;
 };
 
-/** Popular this week, across everyone. The home screen's first row. */
+/**
+ * Popular this week, across everyone. The home screen's first row.
+ *
+ * This is an ordering and nothing more. It used to carry its own avgRating and
+ * a playersThisWeek count, which meant one game had two ratings — 4.6 here and
+ * 4.4 on its own page, from different sources. Every number shown beside these
+ * now comes from aggregateFor, so there is one answer per game by construction
+ * rather than by remembering to update both.
+ *
+ * Real trending needs real accounts. Until then this order is editorial.
+ */
 export const popularThisWeek: PopularGame[] = [
-  { id: 'g1', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_hero.jpg', avgRating: 4.6, playersThisWeek: '18.2k' },
-  { id: 'g2', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_hero.jpg', avgRating: 4.4, playersThisWeek: '14.9k' },
-  { id: 'g3', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_hero.jpg', avgRating: 4.3, playersThisWeek: '11.4k' },
-  { id: 'g4', title: "Baldur's Gate 3", coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_hero.jpg', avgRating: 4.7, playersThisWeek: '9.8k' },
-  { id: 'g5', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_hero.jpg', avgRating: 4.2, playersThisWeek: '7.1k' },
-  { id: 'g6', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_hero.jpg', avgRating: 4.5, playersThisWeek: '6.6k' },
-  { id: 'g7', title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_hero.jpg', avgRating: 4.4, playersThisWeek: '5.9k' },
+  { id: 'g1', title: 'Hollow Knight: Silksong', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1030300/library_hero.jpg' },
+  { id: 'g2', title: 'Elden Ring', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_hero.jpg' },
+  { id: 'g3', title: 'Blue Prince', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1569580/library_hero.jpg' },
+  { id: 'g4', title: "Baldur's Gate 3", coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_hero.jpg' },
+  { id: 'g5', title: 'Metaphor: ReFantazio', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2679460/library_hero.jpg' },
+  { id: 'g6', title: 'Hades II', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/1145350/library_hero.jpg' },
+  { id: 'g7', title: 'Balatro', coverUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_600x900.jpg', backdropUrl: 'https://cdn.cloudflare.steamstatic.com/steam/apps/2379780/library_hero.jpg' },
 ];
 
 /**
