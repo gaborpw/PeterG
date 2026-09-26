@@ -26,29 +26,20 @@ export function LibraryScreen() {
   const navigation = useNavigation();
 
   /**
-   * Edit and remove without opening the entry first.
+   * Which row's menu is open, if any.
    *
-   * Both already lived on the playthrough screen, three taps and a scroll
-   * away, which is too far for tidying up a list you are looking at. Remove
-   * confirms, because it is destructive and there is no undo.
+   * This was Alert.alert, which dims the whole screen and demands a decision
+   * for what is a two-item menu — far more weight than "edit or remove" asks
+   * for. A small panel under the button is what the gesture implies.
    */
-  function openActions(p: Playthrough) {
-    Alert.alert(p.title, playthroughMeta(p) || undefined, [
-      {
-        text: 'Edit this log',
-        onPress: () =>
-          navigation.navigate('Log', { title: p.title, coverUrl: p.coverUrl, editId: p.id }),
-      },
-      {
-        text: 'Remove from library',
-        style: 'destructive',
-        onPress: () =>
-          Alert.alert('Delete this entry?', `${p.title} will be removed from your library.`, [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Delete', style: 'destructive', onPress: () => remove(p.id) },
-          ]),
-      },
+  const [menuFor, setMenuFor] = useState<string | null>(null);
+
+  function confirmRemove(p: Playthrough) {
+    setMenuFor(null);
+    // Removing still asks. It is destructive and there is no undo.
+    Alert.alert('Delete this entry?', `${p.title} will be removed from your library.`, [
       { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => remove(p.id) },
     ]);
   }
 
@@ -150,7 +141,13 @@ export function LibraryScreen() {
         {games.map((p) => (
           <Pressable
             key={p.id}
-            onPress={() => navigation.navigate('Playthrough', { id: p.id })}
+            onPress={() => {
+              if (menuFor !== null) {
+                setMenuFor(null);
+                return;
+              }
+              navigation.navigate('Playthrough', { id: p.id });
+            }}
             accessibilityRole="button"
             accessibilityLabel={`${p.title}, ${p.status}`}
             style={{
@@ -162,6 +159,8 @@ export function LibraryScreen() {
               backgroundColor: color.surface,
               borderWidth: 1,
               borderColor: p.status === 'playing' ? '#33513F' : color.border,
+              // The open row draws over the one below rather than under it.
+              zIndex: menuFor === p.id ? 10 : 0,
             }}
           >
             <Cover title={p.title} url={p.coverUrl} width={46} height={64} />
@@ -196,9 +195,10 @@ export function LibraryScreen() {
             </View>
 
             <Pressable
-              onPress={() => openActions(p)}
+              onPress={() => setMenuFor((open) => (open === p.id ? null : p.id))}
               accessibilityRole="button"
               accessibilityLabel={`Actions for ${p.title}`}
+              accessibilityState={{ expanded: menuFor === p.id }}
               hitSlop={8}
               style={{
                 width: 44,
@@ -207,11 +207,70 @@ export function LibraryScreen() {
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 19, color: color.textFaint, marginTop: -4 }}>⋯</Text>
+              <Text
+                style={{
+                  fontSize: 19,
+                  color: menuFor === p.id ? color.text : color.textFaint,
+                  marginTop: -4,
+                }}
+              >
+                ⋯
+              </Text>
             </Pressable>
+
+            {menuFor === p.id && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 52,
+                  right: 10,
+                  minWidth: 168,
+                  borderRadius: radius.md,
+                  backgroundColor: color.surface2,
+                  borderWidth: 1,
+                  borderColor: color.border,
+                  overflow: 'hidden',
+                }}
+              >
+                <MenuItem
+                  label="Edit this log"
+                  onPress={() => {
+                    setMenuFor(null);
+                    navigation.navigate('Log', {
+                      title: p.title,
+                      coverUrl: p.coverUrl,
+                      editId: p.id,
+                    });
+                  }}
+                />
+                <View style={{ height: 1, backgroundColor: color.border }} />
+                <MenuItem label="Remove" destructive onPress={() => confirmRemove(p)} />
+              </View>
+            )}
           </Pressable>
         ))}
       </ScrollView>
     </View>
+  );
+}
+
+/** One row of the row menu. */
+function MenuItem({
+  label,
+  onPress,
+  destructive,
+}: {
+  label: string;
+  onPress: () => void;
+  destructive?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 14 }}
+    >
+      <Text style={{ fontSize: 13.5, color: destructive ? color.warm : color.text }}>{label}</Text>
+    </Pressable>
   );
 }

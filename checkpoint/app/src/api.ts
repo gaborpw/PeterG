@@ -97,7 +97,11 @@ function fromWire(w: WirePlaythrough): Playthrough {
     id: String(w.id),
     title: w.title,
     coverUrl: w.coverUrl,
-    platform: w.platform ?? '—',
+    // Absent stays absent. This used to substitute an em dash, which is a
+    // display decision made one layer too low: by the time a screen saw it,
+    // "no platform" was indistinguishable from a platform actually called
+    // "—", so a wishlist entry rendered as "— · not started".
+    platform: w.platform ?? '',
     status: w.status,
     hours: w.hours,
     rating: w.rating,
