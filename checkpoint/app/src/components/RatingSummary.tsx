@@ -15,7 +15,7 @@ import { color, radius } from '../theme';
  * Bars are scaled against the tallest bucket rather than the total, so a
  * modest sample still reads as a shape instead of ten identical stubs.
  */
-export function RatingSummary({ agg }: { agg: GameAggregate }) {
+export function RatingSummary({ agg, label = 'RATINGS' }: { agg: GameAggregate; label?: string }) {
   const peak = Math.max(...agg.distribution, 1);
 
   return (
@@ -28,7 +28,7 @@ export function RatingSummary({ agg }: { agg: GameAggregate }) {
         borderColor: color.border,
       }}
     >
-      <Text style={{ fontSize: 9.5, letterSpacing: 0.9, color: color.textFaint }}>RATINGS</Text>
+      <Text style={{ fontSize: 9.5, letterSpacing: 0.9, color: color.textFaint }}>{label}</Text>
 
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 14, marginTop: 12 }}>
         <View style={{ flex: 1 }}>

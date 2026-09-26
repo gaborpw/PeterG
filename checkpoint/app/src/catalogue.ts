@@ -14,7 +14,7 @@
 import {
   backlog,
   catalogue,
-  favourites,
+  favorites,
   feed,
   finished,
   friendsPlaying,
@@ -53,7 +53,7 @@ function buildIndex(): Map<string, GameSummary> {
     ...feed,
     ...popularThisWeek,
     ...popularReviews,
-    ...favourites,
+    ...favorites,
   ];
 
   const index = new Map<string, GameSummary>();

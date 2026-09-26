@@ -5,7 +5,9 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { gameByTitle } from '../catalogue';
-import { favourites, profile } from '../data';
+import { RatingSummary } from '../components/RatingSummary';
+import { Stars } from '../components/Stars';
+import { aggregateFor, aggregateLogs, favorites, profile } from '../data';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
@@ -23,6 +25,10 @@ export function ProfileScreen() {
   const finishRate =
     started.length === 0 ? 0 : Math.round((finishedGames.length / started.length) * 100);
   const totalHours = all.reduce((sum, p) => sum + p.hours, 0);
+
+  // Wanting or shelving a game says nothing about how you rate, so the spread
+  // is drawn from the games you actually played.
+  const mine = aggregateLogs(started);
 
   return (
     <ScrollView
@@ -64,22 +70,61 @@ export function ProfileScreen() {
 
       <View>
         <Text style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint, marginBottom: 11 }}>
-          FAVOURITES
+          FAVORITES
         </Text>
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          {favourites.map((f) => (
-            // Favourites are titles, not full records, so their art comes from
-            // the catalogue rather than being duplicated alongside them.
-            <Cover
-              key={f.id}
-              title={f.title}
-              url={f.coverUrl ?? gameByTitle(f.title)?.coverUrl}
-              width={76}
-              height={104}
-            />
-          ))}
+          {favorites.map((f) => {
+            const agg = aggregateFor(f.title);
+            return (
+              // Favorites are titles, not full records, so both the art and the
+              // rating come from the catalogue rather than being duplicated
+              // alongside them.
+              <Pressable
+                key={f.id}
+                onPress={() =>
+                  navigation.navigate('Game', {
+                    title: f.title,
+                    coverUrl: f.coverUrl ?? gameByTitle(f.title)?.coverUrl,
+                  })
+                }
+                accessibilityRole="button"
+                accessibilityLabel={f.title}
+              >
+                <Cover
+                  title={f.title}
+                  url={f.coverUrl ?? gameByTitle(f.title)?.coverUrl}
+                  width={76}
+                  height={104}
+                />
+                {agg.avgRating !== undefined && (
+                  <View style={{ marginTop: 6, alignItems: 'center' }}>
+                    <Stars value={agg.avgRating} size={10} />
+                  </View>
+                )}
+              </Pressable>
+            );
+          })}
         </View>
       </View>
+
+      {/* Your own spread, not a game's. Same component, because a histogram
+          that meant something different here would be worse than none. */}
+      {mine.ratings > 0 && (
+        <View>
+          <Text
+            style={{
+              fontSize: 10,
+              letterSpacing: 1,
+              fontWeight: '600',
+              color: color.textFaint,
+              marginBottom: 11,
+            }}
+          >
+            HOW YOU RATE
+          </Text>
+          <RatingSummary agg={mine} label="YOUR RATINGS" />
+        </View>
+      )}
 
       <View>
         <Text style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint, marginBottom: 11 }}>

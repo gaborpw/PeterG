@@ -463,8 +463,18 @@ const FUNNEL_MIN_LOGS = 4;
  */
 export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate {
   const key = titleKey(title);
-  const logs = [...communityLogs, ...own].filter((l) => titleKey(l.title) === key);
+  return aggregateLogs([...communityLogs, ...own].filter((l) => titleKey(l.title) === key));
+}
 
+/**
+ * The same summary over any set of logs.
+ *
+ * One game's logs make a game page; your own logs make your profile. Both want
+ * the average, the spread and the counts computed identically — a rating
+ * histogram that meant something different on two screens would be worse than
+ * not having one.
+ */
+export function aggregateLogs(logs: KnownLog[]): GameAggregate {
   if (logs.length === 0) {
     return { logs: 0, ratings: 0, endless: false, distribution: new Array(10).fill(0) };
   }
@@ -592,7 +602,7 @@ export function reviewsFor(title: string): GameReview[] {
 }
 
 /** Games pinned to the profile. Four, always. */
-export const favourites = [
+export const favorites = [
   { id: 'fav1', title: 'Outer Wilds' },
   { id: 'fav2', title: 'Disco Elysium' },
   { id: 'fav3', title: 'Return of the Obra Dinn' },
