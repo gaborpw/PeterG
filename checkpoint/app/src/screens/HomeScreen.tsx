@@ -1,7 +1,6 @@
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar } from '../components/Avatar';
-import { ActivityFeed } from '../components/ActivityFeed';
 import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
@@ -19,18 +18,6 @@ export function HomeScreen() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: space.xxl }}>
       <View style={{ paddingHorizontal: space.xl, paddingTop: space.lg, paddingBottom: space.xxl }}>
         <Text style={{ fontSize: 25, fontWeight: '700', color: color.text }}>Checkpoint</Text>
-      </View>
-
-      {/* Yours, above the shelves, and labelled as yours.
-          Everyone else on this screen is sample data standing in for a real
-          friends feed (see docs/information-architecture.md). Sliding your
-          real session into that list would make one row true and nine
-          invented, in the one place someone forms their impression of the
-          app. When accounts arrive, this row stays and the shelves below it
-          become real — nothing here has to be undone. */}
-      <View style={{ marginBottom: 30 }}>
-        <SectionHeading title="You lately" />
-        <ActivityFeed limit={3} />
       </View>
 
       <View style={{ marginBottom: 30 }}>
@@ -113,6 +100,13 @@ export function HomeScreen() {
                   {f.hours}h
                 </Text>
                 <Text style={{ fontSize: 10.5, color: color.textFaint }}>{f.platform}</Text>
+              </View>
+
+              {/* The row is called "friends are playing", and a total does not
+                  say whether they are. Their last session does — this is the
+                  shape their real sessions will take when accounts arrive. */}
+              <View style={{ marginTop: 3 }}>
+                <Text style={{ fontSize: 10.5, color: color.textDim }}>{f.lastSession}</Text>
               </View>
             </Pressable>
           ))}

@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as api from '../api';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
+import { ActivityFeed } from '../components/ActivityFeed';
 import { Sparkline, toDays } from '../components/Sparkline';
 import { Stars } from '../components/Stars';
 import { daysAgo } from '../dates';
@@ -26,12 +27,17 @@ import { color, radius, space } from '../theme';
  * Paused has no tab. It lives in Playing, sorted by when you last touched it,
  * so a game you have not opened in a month sinks to the bottom on its own
  * rather than needing a shelf to be filed on.
+ *
+ * Activity is the odd one out: the others list games, it lists sessions. It
+ * sits here rather than on home because it is a record of what you did, and
+ * home is about everyone else.
  */
 const SEGMENTS: { key: Segment; label: string }[] = [
   { key: 'playing', label: 'Playing' },
   { key: 'soon', label: 'Going to play' },
   { key: 'done', label: 'Done' },
   { key: 'all', label: 'All' },
+  { key: 'activity', label: 'Activity' },
 ];
 
 export function LibraryScreen({
@@ -95,7 +101,9 @@ export function LibraryScreen({
   }
 
   const games: Playthrough[] =
-    segment === 'playing'
+    segment === 'activity'
+      ? []
+      : segment === 'playing'
       ? recentFirst(byStatus('playing', 'ongoing', 'paused'))
       : segment === 'soon'
         ? byStatus('backlog', 'wishlist')
@@ -142,14 +150,15 @@ export function LibraryScreen({
           </Text>
         )}
 
-        <View
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
           style={{
-            flexDirection: 'row',
             borderRadius: radius.md,
             borderWidth: 1,
             borderColor: color.border,
-            overflow: 'hidden',
           }}
+          contentContainerStyle={{ flexDirection: 'row' }}
         >
           {SEGMENTS.map((s, i) => {
             const on = segment === s.key;
@@ -160,8 +169,8 @@ export function LibraryScreen({
                 accessibilityRole="tab"
                 accessibilityState={{ selected: on }}
                 style={{
-                  flex: 1,
                   minHeight: 40,
+                  paddingHorizontal: 18,
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: on ? color.text : 'transparent',
@@ -181,15 +190,30 @@ export function LibraryScreen({
               </Pressable>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: space.xl, paddingBottom: space.xxl, gap: 10 }}>
-        <Text style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}>
-          {games.length} {games.length === 1 ? 'GAME' : 'GAMES'}
-        </Text>
+        {segment === 'activity' ? (
+          <>
+            <Text
+              style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}
+            >
+              EVERY SESSION
+            </Text>
+            <ActivityFeed limit={50} />
+          </>
+        ) : (
+          <>
+            <Text
+              style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}
+            >
+              {games.length} {games.length === 1 ? 'GAME' : 'GAMES'}
+            </Text>
 
-        {games.length === 0 && <Empty segment={segment} />}
+            {games.length === 0 && <Empty segment={segment} />}
+          </>
+        )}
 
         {games.map((p) => (
           <Pressable
@@ -354,6 +378,9 @@ const EMPTY: Record<Segment, { head: string; body: string }> = {
     head: 'Your library is empty',
     body: 'Tap the + button to log the first one. It takes about thirty seconds.',
   },
+  // Activity renders its own empty state, from the feed. Present so the map
+  // stays exhaustive and a new segment cannot be added without one.
+  activity: { head: '', body: '' },
 };
 
 function Empty({ segment }: { segment: Segment }) {
