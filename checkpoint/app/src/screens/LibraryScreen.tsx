@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { playthroughMeta } from '../format';
-import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
@@ -22,8 +22,35 @@ export function LibraryScreen() {
   // Playing is the default on purpose: the games you are in the middle of are
   // what you came here for. docs/information-architecture.md section 2.
   const [segment, setSegment] = useState<Segment>('playing');
-  const { all, byStatus, source, lastError } = useLibrary();
+  const { all, byStatus, source, lastError, remove } = useLibrary();
   const navigation = useNavigation();
+
+  /**
+   * Edit and remove without opening the entry first.
+   *
+   * Both already lived on the playthrough screen, three taps and a scroll
+   * away, which is too far for tidying up a list you are looking at. Remove
+   * confirms, because it is destructive and there is no undo.
+   */
+  function openActions(p: Playthrough) {
+    Alert.alert(p.title, playthroughMeta(p) || undefined, [
+      {
+        text: 'Edit this log',
+        onPress: () =>
+          navigation.navigate('Log', { title: p.title, coverUrl: p.coverUrl, editId: p.id }),
+      },
+      {
+        text: 'Remove from library',
+        style: 'destructive',
+        onPress: () =>
+          Alert.alert('Delete this entry?', `${p.title} will be removed from your library.`, [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Delete', style: 'destructive', onPress: () => remove(p.id) },
+          ]),
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
 
   const games: Playthrough[] =
     segment === 'playing'
@@ -167,6 +194,21 @@ export function LibraryScreen() {
                 )}
               </View>
             </View>
+
+            <Pressable
+              onPress={() => openActions(p)}
+              accessibilityRole="button"
+              accessibilityLabel={`Actions for ${p.title}`}
+              hitSlop={8}
+              style={{
+                width: 44,
+                height: 44,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 19, color: color.textFaint, marginTop: -4 }}>⋯</Text>
+            </Pressable>
           </Pressable>
         ))}
       </ScrollView>

@@ -126,7 +126,14 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
         rating: entry.rating,
         liked: entry.liked,
         coverUrl: entry.coverUrl ?? (i === -1 ? undefined : current[i].coverUrl),
-        lastPlayed: 'today',
+        // Wanting or shelving a game is not playing it. Stamping every save
+        // with "today" is what made a wishlisted game claim it was played.
+        lastPlayed:
+          entry.status === 'wishlist' || entry.status === 'backlog'
+            ? i === -1
+              ? undefined
+              : current[i].lastPlayed
+            : 'today',
         startedAt: i === -1 ? undefined : current[i].startedAt,
       };
 
@@ -138,7 +145,21 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const remove = useCallback((id: string) => {
-    void api.deletePlaythrough(id).catch(() => setSource('offline'));
+    // Same contract as log: the row goes from the screen immediately, and a
+    // failure says so. Without this a delete the server rejected looked
+    // exactly like one it accepted — the row vanished, stayed in the
+    // database, and came back on the next read with no explanation.
+    void api
+      .deletePlaythrough(id)
+      .then(() => {
+        setSource('server');
+        setLastError(null);
+      })
+      .catch((err: unknown) => {
+        setSource('offline');
+        setLastError(err instanceof Error ? err.message : 'could not reach the server');
+      });
+
     setAll((current) => current.filter((p) => p.id !== id));
   }, []);
 
