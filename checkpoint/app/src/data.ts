@@ -509,6 +509,61 @@ export function aggregateFor(title: string, own: KnownLog[] = []): GameAggregate
   };
 }
 
+
+/** A review as the game page shows it: somebody's log, with or without words. */
+export type GameReview = {
+  id: string;
+  who: string;
+  initials: string;
+  tint: string;
+  rating?: number;
+  status: Status;
+  hours: number;
+  context: string;
+  body?: string;
+};
+
+/**
+ * Every review of one game.
+ *
+ * The game page used to render two hardcoded reviews of Elden Ring on whatever
+ * you opened, the same mistake the stats block made. Nobody's words should
+ * appear under a game they were not written about.
+ */
+export function reviewsFor(title: string): GameReview[] {
+  const key = titleKey(title);
+
+  const fromReviews: GameReview[] = popularReviews
+    .filter((r) => titleKey(r.title) === key)
+    .map((r) => ({
+      id: r.id,
+      who: r.who,
+      initials: r.initials,
+      tint: r.tint,
+      rating: r.rating,
+      status: r.status,
+      hours: r.hours,
+      context: r.context,
+      body: r.body,
+    }));
+
+  const fromFeed: GameReview[] = feed
+    .filter((e) => titleKey(e.title) === key)
+    .map((e) => ({
+      id: e.id,
+      who: e.who,
+      initials: e.initials,
+      tint: e.tint,
+      rating: e.rating,
+      status: (e.verb === 'finished' ? 'finished' : 'abandoned') as Status,
+      hours: e.hours,
+      context: e.verb === 'finished' ? `finished · ${e.hours}h` : `dropped at ${e.hours}h`,
+      body: e.review,
+    }));
+
+  return [...fromReviews, ...fromFeed];
+}
+
 /** Games pinned to the profile. Four, always. */
 export const favourites = [
   { id: 'fav1', title: 'Outer Wilds' },

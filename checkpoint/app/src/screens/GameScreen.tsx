@@ -4,15 +4,16 @@ import { Avatar } from '../components/Avatar';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
-import { aggregateFor, factsFor } from '../data';
+import { aggregateFor, factsFor, reviewsFor, type GameReview } from '../data';
 import type { GameScreenProps } from '../navigation';
 import { useLibrary } from '../store';
 import { color, radius, space } from '../theme';
 
 export function GameScreen({ route, navigation }: GameScreenProps) {
   // Progress-aware spoiler gating: a review written past where you have got to
-  // stays collapsed until you ask for it. docs/spec.md 3.4.
-  const [revealed, setRevealed] = useState(false);
+  // stays collapsed until you ask for it. docs/spec.md 3.4. Tracked per review
+  // rather than as one flag, so revealing one does not uncover the rest.
+  const [revealed, setRevealed] = useState<string[]>([]);
   const { all, log } = useLibrary();
 
   const { title, coverUrl } = route.params;
@@ -21,6 +22,7 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
   const yours = all.find((p) => p.title.toLowerCase() === title.toLowerCase());
 
   const facts = factsFor(title);
+  const reviews = reviewsFor(title);
 
   // Your own log counts towards the game's numbers, but wanting a game is not
   // playing it — a wishlist entry would drag the median to zero.
@@ -216,8 +218,18 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
               <Text style={{ fontSize: 14, color: color.textDim }}>h</Text>
             </Text>
             <Text style={{ fontSize: 11.5, color: color.textFaint, marginTop: 5 }}>
-              {yours.platform}
-              {yours.lastPlayed !== undefined ? ` · last played ${yours.lastPlayed}` : ''}
+              {[
+                yours.platform,
+                // "last played today" is a lie about a game you have only
+                // wished for, and an empty platform left a leading separator.
+                yours.status === 'wishlist'
+                  ? 'not started'
+                  : yours.lastPlayed !== undefined
+                    ? `last played ${yours.lastPlayed}`
+                    : undefined,
+              ]
+                .filter((part) => part !== undefined && part !== '')
+                .join(' · ')}
             </Text>
             <Pressable
               onPress={() => navigation.navigate('Log', { title, coverUrl, editId: yours.id })}
@@ -245,71 +257,28 @@ export function GameScreen({ route, navigation }: GameScreenProps) {
           Reviews
         </Text>
 
-        <View style={{ padding: 14, borderRadius: 13, backgroundColor: color.surface, gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Avatar initials="JT" tint="#2E3A46" size={24} />
-            <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>Jon</Text>
-            <Chip label="31h in" />
-            <View style={{ flex: 1 }} />
-            <Stars value={4.5} />
-          </View>
-          <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>
-            Thirty hours in and it still hands me a cliff I have no business climbing.
+        {reviews.length === 0 ? (
+          <Text style={{ fontSize: 13, color: color.textDim, lineHeight: 20 }}>
+            No reviews yet. Yours would be the first.
           </Text>
-        </View>
-
-        <View
-          style={{
-            marginTop: 9,
-            padding: 14,
-            borderRadius: 13,
-            backgroundColor: color.surface,
-            borderWidth: 1,
-            borderColor: color.border,
-            borderStyle: 'dashed',
-            gap: 10,
-          }}
-        >
-          {revealed ? (
-            <>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Avatar initials="MK" tint="#2E4640" size={24} />
-                <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>Mia</Text>
-                <Chip label="finished · 112h" />
-                <View style={{ flex: 1 }} />
-                <Stars value={5} />
-              </View>
-              <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>
-                The last stretch asks you to be a different player than the one who started,
-                and somehow you already are.
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text style={{ fontSize: 12, color: color.textDim, lineHeight: 17 }}>
-                Written after finishing. You are 47h in.
-              </Text>
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => setRevealed(true)}
-                style={{
-                  minHeight: 44,
-                  borderRadius: radius.md,
-                  borderWidth: 1,
-                  borderColor: color.border,
-                  backgroundColor: color.surface2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>
-                  Reveal anyway
-                </Text>
-              </Pressable>
-            </>
-          )}
-        </View>
+        ) : (
+          <View style={{ gap: 9 }}>
+            {reviews.map((review) => (
+              <ReviewCard
+                key={review.id}
+                review={review}
+                // Only somebody who finished can spoil the ending for someone
+                // who has not. Your own hours are how far "not yet" reaches.
+                gated={review.status === 'finished' && yours?.status !== 'finished'}
+                revealed={revealed.includes(review.id)}
+                onReveal={() => setRevealed((ids) => [...ids, review.id])}
+                yourHours={yours?.hours}
+              />
+            ))}
+          </View>
+        )}
       </View>
+
     </ScrollView>
   );
 }
@@ -355,3 +324,71 @@ function StatCell({
 }
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+function ReviewCard({
+  review,
+  gated,
+  revealed,
+  onReveal,
+  yourHours,
+}: {
+  review: GameReview;
+  gated: boolean;
+  revealed: boolean;
+  onReveal: () => void;
+  yourHours?: number;
+}) {
+  if (gated && !revealed) {
+    return (
+      <View
+        style={{
+          padding: 14,
+          borderRadius: 13,
+          backgroundColor: color.surface,
+          borderWidth: 1,
+          borderColor: color.border,
+          borderStyle: 'dashed',
+          gap: 10,
+        }}
+      >
+        <Text style={{ fontSize: 12, color: color.textDim, lineHeight: 17 }}>
+          {review.who} wrote this after finishing.
+          {yourHours !== undefined ? ` You are ${yourHours}h in.` : ''}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Reveal ${review.who}'s review`}
+          onPress={onReveal}
+          style={{
+            minHeight: 44,
+            borderRadius: radius.md,
+            borderWidth: 1,
+            borderColor: color.border,
+            backgroundColor: color.surface2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>
+            Reveal anyway
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ padding: 14, borderRadius: 13, backgroundColor: color.surface, gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Avatar initials={review.initials} tint={review.tint} size={24} />
+        <Text style={{ fontSize: 12.5, fontWeight: '500', color: color.text }}>{review.who}</Text>
+        <Chip label={review.context} />
+        <View style={{ flex: 1 }} />
+        {review.rating !== undefined && <Stars value={review.rating} />}
+      </View>
+      {review.body !== undefined && (
+        <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#C8CDD5' }}>{review.body}</Text>
+      )}
+    </View>
+  );
+}
