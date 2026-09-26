@@ -6,6 +6,7 @@ import type { RootStackParamList } from './src/navigation';
 import { GameScreen } from './src/screens/GameScreen';
 import { LogScreen } from './src/screens/LogScreen';
 import { PickGameScreen } from './src/screens/PickGameScreen';
+import { LogSessionScreen } from './src/screens/LogSessionScreen';
 import { EditProfileScreen } from './src/screens/EditProfileScreen';
 import { PickFavoriteScreen } from './src/screens/PickFavoriteScreen';
 import { EntryScreen } from './src/screens/EntryScreen';
@@ -70,6 +71,11 @@ export default function App() {
               name="PickFavorite"
               component={PickFavoriteScreen}
               options={{ title: 'Pick a favorite', presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="LogSession"
+              component={LogSessionScreen}
+              options={{ title: 'Log a session', presentation: 'modal' }}
             />
             <Stack.Screen
               name="PickGame"

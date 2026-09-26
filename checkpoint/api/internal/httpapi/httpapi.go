@@ -56,6 +56,8 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /v1/me/playthroughs", s.handleSavePlaythrough)
 	mux.HandleFunc("DELETE /v1/me/playthroughs/{id}", s.handleDeletePlaythrough)
 
+	mux.HandleFunc("POST /v1/me/sessions", s.handleLogSessions)
+
 	mux.HandleFunc("GET /v1/me/profile", s.handleGetProfile)
 	mux.HandleFunc("PATCH /v1/me/profile", s.handleUpdateProfile)
 	mux.HandleFunc("PUT /v1/me/favorites", s.handleSetFavorites)
@@ -245,4 +247,34 @@ func (s *Server) handleSetFavorites(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, p)
+}
+
+func (s *Server) handleLogSessions(w http.ResponseWriter, r *http.Request) {
+	var in []playthrough.SessionEntry
+	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&in); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "malformed body"})
+		return
+	}
+
+	if err := s.plays.LogSessions(r.Context(), s.accountID(), in); err != nil {
+		if errors.Is(err, playthrough.ErrInvalid) {
+			writeJSON(w, http.StatusUnprocessableEntity, map[string]string{"error": err.Error()})
+			return
+		}
+		s.log.ErrorContext(r.Context(), "log sessions", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not save"})
+		return
+	}
+
+	// Answer with the whole library: totals moved, and the client would
+	// otherwise have to guess by how much.
+	all, err := s.plays.List(r.Context(), s.accountID())
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "list after sessions", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "saved, could not reload"})
+		return
+	}
+	writeJSON(w, http.StatusOK, all)
 }

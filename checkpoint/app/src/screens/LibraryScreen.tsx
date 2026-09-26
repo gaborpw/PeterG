@@ -12,10 +12,22 @@ import { color, radius, space } from '../theme';
 
 
 
+/**
+ * Four groups, named for what you would say out loud.
+ *
+ * "Backlog" is jargon; "Going to play" is the same shelf described honestly.
+ * Dropped games sit under Done rather than Finished, because you did put time
+ * into them and they are over either way — filing them under Finished was the
+ * app contradicting its own "dropped at 9h" label one line below.
+ *
+ * Paused has no tab. It lives in Playing, sorted by when you last touched it,
+ * so a game you have not opened in a month sinks to the bottom on its own
+ * rather than needing a shelf to be filed on.
+ */
 const SEGMENTS: { key: Segment; label: string }[] = [
   { key: 'playing', label: 'Playing' },
-  { key: 'backlog', label: 'Backlog' },
-  { key: 'finished', label: 'Finished' },
+  { key: 'soon', label: 'Going to play' },
+  { key: 'done', label: 'Done' },
   { key: 'all', label: 'All' },
 ];
 
@@ -51,11 +63,11 @@ export function LibraryScreen({
 
   const games: Playthrough[] =
     segment === 'playing'
-      ? byStatus('playing', 'ongoing')
-      : segment === 'backlog'
+      ? recentFirst(byStatus('playing', 'ongoing', 'paused'))
+      : segment === 'soon'
         ? byStatus('backlog', 'wishlist')
-        : segment === 'finished'
-          ? byStatus('finished', 'abandoned', 'paused')
+        : segment === 'done'
+          ? byStatus('finished', 'abandoned')
           : all;
 
   return (
@@ -287,15 +299,15 @@ function MenuItem({
 const EMPTY: Record<Segment, { head: string; body: string }> = {
   playing: {
     head: 'Nothing on the go',
-    body: 'Games you are playing, or keep coming back to, show up here.',
+    body: 'Games you are playing, paused, or keep coming back to, most recent first.',
   },
-  backlog: {
-    head: 'Nothing waiting',
+  soon: {
+    head: 'Nothing lined up',
     body: 'Games you own but have not started, and ones you want, collect here.',
   },
-  finished: {
+  done: {
     head: 'Nothing finished yet',
-    body: 'Games you see through to the end land here, along with the ones you gave up on.',
+    body: 'Games you saw through, and the ones you gave up on. Both took real time.',
   },
   all: {
     head: 'Your library is empty',
@@ -323,4 +335,22 @@ function Empty({ segment }: { segment: Segment }) {
       </Text>
     </View>
   );
+}
+
+/**
+ * Most recently played first, then everything nobody has logged a session for.
+ *
+ * lastPlayedOn is a real date from the session table, so this is the order you
+ * would put the shelf in yourself: what you touched last night at the top, the
+ * thing you paused in March at the bottom.
+ */
+function recentFirst(games: Playthrough[]): Playthrough[] {
+  return [...games].sort((a, b) => {
+    const left = a.lastPlayedOn ?? '';
+    const right = b.lastPlayedOn ?? '';
+    if (left === right) return a.title.localeCompare(b.title);
+    if (left === '') return 1;
+    if (right === '') return -1;
+    return right.localeCompare(left);
+  });
 }

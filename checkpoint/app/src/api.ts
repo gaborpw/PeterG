@@ -79,12 +79,21 @@ export type SaveInput = {
   review?: string;
 };
 
+export type SessionEntry = {
+  playthroughId: number;
+  hours: number;
+  /** YYYY-MM-DD. The player's date, not the server's. */
+  playedOn: string;
+  note: string;
+};
+
 /** Wire shape. `id` is a number server-side; the app uses strings throughout. */
 type WirePlaythrough = {
   id: number;
   title: string;
   coverUrl?: string;
   platform?: string;
+  lastPlayedOn?: string;
   status: Status;
   hours: number;
   rating?: number;
@@ -102,6 +111,7 @@ function fromWire(w: WirePlaythrough): Playthrough {
     // "no platform" was indistinguishable from a platform actually called
     // "—", so a wishlist entry rendered as "— · not started".
     platform: w.platform ?? '',
+    lastPlayedOn: w.lastPlayedOn,
     status: w.status,
     hours: w.hours,
     rating: w.rating,
@@ -155,6 +165,19 @@ export async function savePlaythrough(input: SaveInput): Promise<Playthrough> {
     throw new Error(message);
   }
   return fromWire((await res.json()) as WirePlaythrough);
+}
+
+/** Log a sitting across one or more games. Answers with the whole library. */
+export async function logSessions(entries: SessionEntry[]): Promise<Playthrough[]> {
+  const res = await request('/v1/me/sessions', {
+    method: 'POST',
+    body: JSON.stringify(entries),
+  });
+  if (!res.ok) throw await errorFrom(res);
+
+  const body: unknown = await res.json();
+  if (!Array.isArray(body)) throw new Error('unexpected response shape');
+  return (body as WirePlaythrough[]).map(fromWire);
 }
 
 export async function deletePlaythrough(id: string): Promise<void> {

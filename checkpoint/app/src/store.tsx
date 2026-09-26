@@ -45,6 +45,8 @@ type Library = {
   /** Adds a playthrough, or updates the existing one for that title. */
   log(entry: NewLog): void;
   remove(id: string): void;
+  /** Record a sitting across one or more games. Resolves false on failure. */
+  logSessions(entries: { id: string; hours: number }[]): Promise<boolean>;
 };
 
 const LibraryContext = createContext<Library | null>(null);
@@ -168,6 +170,42 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     setAll((current) => current.filter((p) => p.id !== id));
   }, []);
 
+  /**
+   * A sitting, across however many games.
+   *
+   * Not optimistic, unlike log(). A session adds to a total the server owns,
+   * so guessing the new number locally and being wrong would show hours that
+   * no set of sessions adds up to. The server answers with the whole library
+   * and that is what we keep.
+   */
+  const logSessions = useCallback(async (entries: { id: string; hours: number }[]) => {
+    const today = new Date();
+    const playedOn = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0'),
+    ].join('-');
+
+    try {
+      const fresh = await api.logSessions(
+        entries.map((e) => ({
+          playthroughId: Number(e.id),
+          hours: e.hours,
+          playedOn,
+          note: '',
+        })),
+      );
+      setAll(fresh);
+      setSource('server');
+      setLastError(null);
+      return true;
+    } catch (err: unknown) {
+      setSource('offline');
+      setLastError(err instanceof Error ? err.message : 'could not reach the server');
+      return false;
+    }
+  }, []);
+
   const value = useMemo<Library>(
     () => ({
       all,
@@ -177,8 +215,9 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
       byStatus: (...statuses: Status[]) => all.filter((p) => statuses.includes(p.status)),
       log,
       remove,
+      logSessions,
     }),
-    [all, ready, source, lastError, log, remove],
+    [all, ready, source, lastError, log, remove, logSessions],
   );
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;

@@ -1,6 +1,10 @@
 package playthrough
 
-import "testing"
+import (
+	"context"
+	"errors"
+	"testing"
+)
 
 func TestValidate(t *testing.T) {
 	five := 5.0
@@ -46,5 +50,48 @@ func TestSlugify(t *testing.T) {
 		if got := Slugify(in); got != want {
 			t.Errorf("Slugify(%q) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+func TestSessionEntryValidation(t *testing.T) {
+	// LogSessions validates before it touches the database, so these cases
+	// exercise the guard without needing one.
+	r := &Repo{}
+	ctx := context.Background()
+
+	cases := []struct {
+		name string
+		in   []SessionEntry
+	}{
+		{"nothing at all", nil},
+		{"empty batch", []SessionEntry{}},
+		{"zero hours", []SessionEntry{{PlaythroughID: 1, Hours: 0}}},
+		{"negative hours", []SessionEntry{{PlaythroughID: 1, Hours: -2}}},
+		{"more hours than a day has", []SessionEntry{{PlaythroughID: 1, Hours: 25}}},
+		{"unparseable date", []SessionEntry{{PlaythroughID: 1, Hours: 2, PlayedOn: "yesterday"}}},
+		{"american date", []SessionEntry{{PlaythroughID: 1, Hours: 2, PlayedOn: "09/25/2026"}}},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			err := r.LogSessions(ctx, 1, c.in)
+			if err == nil {
+				t.Fatal("expected an error")
+			}
+			if !errors.Is(err, ErrInvalid) {
+				t.Fatalf("expected ErrInvalid, got %v", err)
+			}
+		})
+	}
+}
+
+func TestSessionBatchCap(t *testing.T) {
+	r := &Repo{}
+	many := make([]SessionEntry, 21)
+	for i := range many {
+		many[i] = SessionEntry{PlaythroughID: int64(i + 1), Hours: 1}
+	}
+	if err := r.LogSessions(context.Background(), 1, many); !errors.Is(err, ErrInvalid) {
+		t.Fatalf("expected ErrInvalid for an oversized batch, got %v", err)
 	}
 }

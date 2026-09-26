@@ -28,6 +28,9 @@ type Playthrough struct {
 	Review    *string    `json:"review,omitempty"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	StartedAt *time.Time `json:"startedAt,omitempty"`
+	// The most recent dated session, if any. A real date rather than a phrase
+	// like "today", so the client can sort by it and answer "this week".
+	LastPlayedOn *time.Time `json:"lastPlayedOn,omitempty"`
 }
 
 // Input is what the client sends. Rating arrives as 0.5–5.0 and is stored as
@@ -77,7 +80,8 @@ func (r *Repo) List(ctx context.Context, accountID int64) ([]Playthrough, error)
 	const q = `
 		SELECT p.id, g.title, g.cover_url, pl.abbreviation, p.status,
 		       COALESCE(p.hours, 0), p.rating, p.liked, r.body,
-		       p.updated_at, p.started_at
+		       p.updated_at, p.started_at,
+		       (SELECT MAX(played_on) FROM session s WHERE s.playthrough_id = p.id)
 		FROM playthrough p
 		JOIN game g ON g.id = p.game_id
 		LEFT JOIN platform pl ON pl.id = p.platform_id
@@ -96,13 +100,19 @@ func (r *Repo) List(ctx context.Context, accountID int64) ([]Playthrough, error)
 		var p Playthrough
 		var rating sql.NullInt16
 		var started sql.NullTime
+		var lastPlayed sql.NullTime
 		if err := rows.Scan(&p.ID, &p.Title, &p.CoverURL, &p.Platform, &p.Status,
-			&p.Hours, &rating, &p.Liked, &p.Review, &p.UpdatedAt, &started); err != nil {
+			&p.Hours, &rating, &p.Liked, &p.Review, &p.UpdatedAt, &started,
+			&lastPlayed); err != nil {
 			return nil, fmt.Errorf("scan playthrough: %w", err)
 		}
 		if rating.Valid {
 			v := float64(rating.Int16) / 2
 			p.Rating = &v
+		}
+		if lastPlayed.Valid {
+			t := lastPlayed.Time
+			p.LastPlayedOn = &t
 		}
 		if started.Valid {
 			p.StartedAt = &started.Time
@@ -258,4 +268,95 @@ func Slugify(title string) string {
 		}
 	}
 	return strings.Trim(b.String(), "-")
+}
+
+// SessionEntry is one game's share of a sitting: which playthrough, how long,
+// and when. Note is optional and usually empty.
+type SessionEntry struct {
+	PlaythroughID int64   `json:"playthroughId"`
+	Hours         float64 `json:"hours"`
+	// Empty means today. The client sends a date rather than relying on the
+	// server's clock, because "today" is the player's today, not the server's.
+	PlayedOn string `json:"playedOn"`
+	Note     string `json:"note"`
+}
+
+// LogSessions records a sitting across one or more games.
+//
+// Sessions are the diary; playthrough.hours stays the running total and each
+// session adds to it. That keeps hours meaningful for entries logged before
+// sessions existed — they read as a starting balance nobody has to backfill —
+// and honours the spec's rule that sessions are optional (3.2): someone who
+// only ever types a total still gets a working app.
+//
+// The whole batch is one transaction. Logging an evening across three games
+// and having the third fail would leave a total that no set of sessions adds
+// up to, which is worse than logging nothing.
+func (r *Repo) LogSessions(ctx context.Context, accountID int64, in []SessionEntry) error {
+	if len(in) == 0 {
+		return fmt.Errorf("%w: nothing to log", ErrInvalid)
+	}
+	if len(in) > 20 {
+		return fmt.Errorf("%w: too many games in one sitting", ErrInvalid)
+	}
+
+	for _, e := range in {
+		if e.Hours <= 0 {
+			return fmt.Errorf("%w: a session needs some time in it", ErrInvalid)
+		}
+		if e.Hours > 24 {
+			return fmt.Errorf("%w: more than 24 hours in a day", ErrInvalid)
+		}
+		if e.PlayedOn != "" {
+			if _, err := time.Parse("2006-01-02", e.PlayedOn); err != nil {
+				return fmt.Errorf("%w: date must be YYYY-MM-DD", ErrInvalid)
+			}
+		}
+	}
+
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	for _, e := range in {
+		playedOn := e.PlayedOn
+		if playedOn == "" {
+			playedOn = time.Now().Format("2006-01-02")
+		}
+
+		var note *string
+		if trimmed := strings.TrimSpace(e.Note); trimmed != "" {
+			note = &trimmed
+		}
+
+		// Scoped by account in the statement itself. A playthrough id is a
+		// guessable integer, so ownership is checked where it cannot be
+		// forgotten rather than in a separate lookup above.
+		var id int64
+		err := tx.QueryRowContext(ctx, `
+			INSERT INTO session (playthrough_id, played_on, hours, note)
+			SELECT p.id, $3::date, $4, $5
+			FROM playthrough p
+			WHERE p.id = $1 AND p.account_id = $2
+			RETURNING id`,
+			e.PlaythroughID, accountID, playedOn, e.Hours, note).Scan(&id)
+		if errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("%w: no such playthrough", ErrInvalid)
+		}
+		if err != nil {
+			return fmt.Errorf("insert session: %w", err)
+		}
+
+		if _, err := tx.ExecContext(ctx, `
+			UPDATE playthrough
+			   SET hours = COALESCE(hours, 0) + $3, updated_at = now()
+			 WHERE id = $1 AND account_id = $2`,
+			e.PlaythroughID, accountID, e.Hours); err != nil {
+			return fmt.Errorf("add hours: %w", err)
+		}
+	}
+
+	return tx.Commit()
 }

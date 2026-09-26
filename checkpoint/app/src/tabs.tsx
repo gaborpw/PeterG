@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-export type Segment = 'playing' | 'backlog' | 'finished' | 'all';
+export type Segment = 'playing' | 'soon' | 'done' | 'all';
 
 /**
  * A way for one tab to send you to another.

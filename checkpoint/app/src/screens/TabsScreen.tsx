@@ -18,13 +18,14 @@ export function TabsScreen() {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
-  // The centre button pushes the picker rather than switching tabs, so you
-  // never lose the screen you were on to log something. Choosing a game
-  // replaces the picker with the form, so Back returns here rather than
-  // walking you through the search you already finished.
+  // The centre button opens the session sheet rather than switching tabs, so
+  // you never lose the screen you were on to log something. It leads with
+  // adding time to what you are already playing, because that is the thing
+  // you will do a hundred times for every new game you start; starting one is
+  // a link away from there.
   function onTab(next: Tab) {
     if (next === 'log') {
-      navigation.navigate('PickGame');
+      navigation.navigate('LogSession');
       return;
     }
     setTab(next);

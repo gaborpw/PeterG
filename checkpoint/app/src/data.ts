@@ -27,6 +27,14 @@ export type Playthrough = {
   /** ISO date the playthrough started. */
   startedAt?: string;
   lastPlayed?: string;
+  /**
+   * The most recent dated session, YYYY-MM-DD.
+   *
+   * lastPlayed is a phrase for showing ("today", "Sunday"); this is a date for
+   * sorting and for answering "did I play this week". Neither substitutes for
+   * the other.
+   */
+  lastPlayedOn?: string;
   rating?: number;
   liked?: boolean;
   droppedAtHour?: number;

@@ -104,7 +104,7 @@ export function ProfileScreen() {
         <Stat
           value={String(finishedGames.length)}
           label="FINISHED"
-          onPress={() => openLibrary('finished')}
+          onPress={() => openLibrary('done')}
         />
         <Divider />
         <Stat value={`${finishRate}%`} label="FINISH RATE" warm />

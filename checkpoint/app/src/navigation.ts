@@ -12,7 +12,9 @@ export type RootStackParamList = {
   Playthrough: { id: string };
   /** Somebody else's entry, by id. */
   Entry: { id: string };
-  /** Step one of logging: choose the game. Replaced by Log, not stacked. */
+  /** The everyday action: time played today, across however many games. */
+  LogSession: undefined;
+  /** Starting something new: choose the game, then fill the form. */
   PickGame: undefined;
   Log: { title?: string; coverUrl?: string; editId?: string } | undefined;
   EditProfile: undefined;
@@ -25,6 +27,7 @@ export type PlaythroughScreenProps = NativeStackScreenProps<RootStackParamList, 
 export type EntryScreenProps = NativeStackScreenProps<RootStackParamList, 'Entry'>;
 export type LogScreenProps = NativeStackScreenProps<RootStackParamList, 'Log'>;
 export type PickGameScreenProps = NativeStackScreenProps<RootStackParamList, 'PickGame'>;
+export type LogSessionScreenProps = NativeStackScreenProps<RootStackParamList, 'LogSession'>;
 export type EditProfileScreenProps = NativeStackScreenProps<RootStackParamList, 'EditProfile'>;
 export type PickFavoriteScreenProps = NativeStackScreenProps<RootStackParamList, 'PickFavorite'>;
 
