@@ -7,9 +7,10 @@ import { Cover } from '../components/Cover';
 import { Stars } from '../components/Stars';
 import { type Playthrough } from '../data';
 import { useLibrary } from '../store';
+import { type Segment } from '../tabs';
 import { color, radius, space } from '../theme';
 
-type Segment = 'playing' | 'backlog' | 'finished' | 'all';
+
 
 const SEGMENTS: { key: Segment; label: string }[] = [
   { key: 'playing', label: 'Playing' },
@@ -18,10 +19,15 @@ const SEGMENTS: { key: Segment; label: string }[] = [
   { key: 'all', label: 'All' },
 ];
 
-export function LibraryScreen() {
+export function LibraryScreen({
+  segment,
+  onSegment,
+}: {
+  segment: Segment;
+  onSegment: (next: Segment) => void;
+}) {
   // Playing is the default on purpose: the games you are in the middle of are
   // what you came here for. docs/information-architecture.md section 2.
-  const [segment, setSegment] = useState<Segment>('playing');
   const { all, byStatus, source, lastError, remove } = useLibrary();
   const navigation = useNavigation();
 
@@ -105,7 +111,7 @@ export function LibraryScreen() {
             return (
               <Pressable
                 key={s.key}
-                onPress={() => setSegment(s.key)}
+                onPress={() => onSegment(s.key)}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: on }}
                 style={{
@@ -137,6 +143,8 @@ export function LibraryScreen() {
         <Text style={{ fontSize: 10, letterSpacing: 1, fontWeight: '600', color: color.textFaint }}>
           {games.length} {games.length === 1 ? 'GAME' : 'GAMES'}
         </Text>
+
+        {games.length === 0 && <Empty segment={segment} />}
 
         {games.map((p) => (
           <Pressable
@@ -272,5 +280,47 @@ function MenuItem({
     >
       <Text style={{ fontSize: 13.5, color: destructive ? color.warm : color.text }}>{label}</Text>
     </Pressable>
+  );
+}
+
+/** Segment-specific copy. "0 GAMES" and then black tells you nothing. */
+const EMPTY: Record<Segment, { head: string; body: string }> = {
+  playing: {
+    head: 'Nothing on the go',
+    body: 'Games you are playing, or keep coming back to, show up here.',
+  },
+  backlog: {
+    head: 'Nothing waiting',
+    body: 'Games you own but have not started, and ones you want, collect here.',
+  },
+  finished: {
+    head: 'Nothing finished yet',
+    body: 'Games you see through to the end land here, along with the ones you gave up on.',
+  },
+  all: {
+    head: 'Your library is empty',
+    body: 'Tap the + button to log the first one. It takes about thirty seconds.',
+  },
+};
+
+function Empty({ segment }: { segment: Segment }) {
+  const copy = EMPTY[segment];
+  return (
+    <View
+      style={{
+        marginTop: 6,
+        padding: 18,
+        borderRadius: radius.lg,
+        backgroundColor: color.surface,
+        borderWidth: 1,
+        borderColor: color.border,
+        borderStyle: 'dashed',
+      }}
+    >
+      <Text style={{ fontSize: 14, fontWeight: '600', color: color.text }}>{copy.head}</Text>
+      <Text style={{ fontSize: 12.5, color: color.textDim, marginTop: 7, lineHeight: 19 }}>
+        {copy.body}
+      </Text>
+    </View>
   );
 }

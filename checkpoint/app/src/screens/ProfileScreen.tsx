@@ -5,6 +5,7 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { gameByTitle } from '../catalogue';
+import { useTabs } from '../tabs';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
 import { aggregateFor, aggregateLogs, favorites, profile } from '../data';
@@ -14,6 +15,7 @@ import { color, radius, space } from '../theme';
 export function ProfileScreen() {
   const { all, byStatus } = useLibrary();
   const navigation = useNavigation();
+  const { openLibrary } = useTabs();
 
   const active = byStatus('playing', 'ongoing');
   const wishlist = byStatus('wishlist');
@@ -59,9 +61,13 @@ export function ProfileScreen() {
           overflow: 'hidden',
         }}
       >
-        <Stat value={String(all.length)} label="LOGGED" />
+        <Stat value={String(all.length)} label="LOGGED" onPress={() => openLibrary('all')} />
         <Divider />
-        <Stat value={String(finishedGames.length)} label="FINISHED" />
+        <Stat
+          value={String(finishedGames.length)}
+          label="FINISHED"
+          onPress={() => openLibrary('finished')}
+        />
         <Divider />
         <Stat value={`${finishRate}%`} label="FINISH RATE" warm />
         <Divider />
@@ -197,14 +203,47 @@ export function ProfileScreen() {
   );
 }
 
-function Stat({ value, label, warm }: { value: string; label: string; warm?: boolean }) {
-  return (
-    <View style={{ flex: 1, paddingVertical: 13, alignItems: 'center' }}>
+/**
+ * One number.
+ *
+ * The two that stand for a list you can actually open are pressable; the two
+ * that are derived — a rate and a total — are not, because there is no list
+ * behind them to show and a tile that does nothing is worse than a tile that
+ * plainly is not a button.
+ */
+function Stat({
+  value,
+  label,
+  warm,
+  onPress,
+}: {
+  value: string;
+  label: string;
+  warm?: boolean;
+  onPress?: () => void;
+}) {
+  const body = (
+    <>
       <Text style={{ fontSize: 19, fontWeight: '600', color: warm ? color.warm : color.text }}>
         {value}
       </Text>
       <Text style={{ fontSize: 9.5, color: color.textFaint, marginTop: 6 }}>{label}</Text>
-    </View>
+    </>
+  );
+
+  const box = { flex: 1, paddingVertical: 13, alignItems: 'center' as const };
+
+  if (onPress === undefined) return <View style={box}>{body}</View>;
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${value} ${label.toLowerCase()}, open in library`}
+      style={box}
+    >
+      {body}
+    </Pressable>
   );
 }
 
