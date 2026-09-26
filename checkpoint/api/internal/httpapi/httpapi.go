@@ -58,6 +58,7 @@ func (s *Server) Routes() http.Handler {
 
 	mux.HandleFunc("POST /v1/me/sessions", s.handleLogSessions)
 	mux.HandleFunc("GET /v1/me/playthroughs/{id}/sessions", s.handleListSessions)
+	mux.HandleFunc("GET /v1/me/activity", s.handleActivity)
 
 	mux.HandleFunc("GET /v1/me/profile", s.handleGetProfile)
 	mux.HandleFunc("PATCH /v1/me/profile", s.handleUpdateProfile)
@@ -294,4 +295,16 @@ func (s *Server) handleListSessions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, sessions)
+}
+
+func (s *Server) handleActivity(w http.ResponseWriter, r *http.Request) {
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+
+	activity, err := s.plays.RecentActivity(r.Context(), s.accountID(), limit)
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "recent activity", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not load"})
+		return
+	}
+	writeJSON(w, http.StatusOK, activity)
 }

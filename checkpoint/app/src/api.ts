@@ -199,6 +199,26 @@ export async function listSessions(playthroughId: string): Promise<Session[]> {
   return body as Session[];
 }
 
+export type Activity = {
+  id: number;
+  playthroughId: number;
+  title: string;
+  coverUrl?: string;
+  playedOn: string;
+  hours: number;
+  note?: string;
+};
+
+/** Sessions across every game, newest first. The profile's feed. */
+export async function listActivity(limit = 30): Promise<Activity[]> {
+  const res = await request(`/v1/me/activity?limit=${limit}`);
+  if (!res.ok) throw await errorFrom(res);
+
+  const body: unknown = await res.json();
+  if (!Array.isArray(body)) throw new Error('unexpected response shape');
+  return body as Activity[];
+}
+
 export async function deletePlaythrough(id: string): Promise<void> {
   const res = await request(`/v1/me/playthroughs/${encodeURIComponent(id)}`, {
     method: 'DELETE',

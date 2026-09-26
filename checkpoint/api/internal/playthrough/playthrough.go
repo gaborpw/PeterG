@@ -399,3 +399,51 @@ func (r *Repo) Sessions(ctx context.Context, accountID, playthroughID int64) ([]
 	}
 	return out, rows.Err()
 }
+
+// Activity is one session with enough of its game attached to render a row.
+type Activity struct {
+	ID            int64   `json:"id"`
+	PlaythroughID int64   `json:"playthroughId"`
+	Title         string  `json:"title"`
+	CoverURL      *string `json:"coverUrl,omitempty"`
+	PlayedOn      string  `json:"playedOn"`
+	Hours         float64 `json:"hours"`
+	Note          *string `json:"note,omitempty"`
+}
+
+// RecentActivity lists sessions across every game, newest first.
+//
+// The diary on a playthrough answers "how did this game go"; this answers
+// "what have I been playing", which is the profile's question and a different
+// one. Limited server-side because a feed is a thing that grows forever.
+func (r *Repo) RecentActivity(ctx context.Context, accountID int64, limit int) ([]Activity, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 30
+	}
+
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT s.id, p.id, g.title, g.cover_url, s.played_on, COALESCE(s.hours, 0), s.note
+		FROM session s
+		JOIN playthrough p ON p.id = s.playthrough_id
+		JOIN game g ON g.id = p.game_id
+		WHERE p.account_id = $1
+		ORDER BY s.played_on DESC, s.id DESC
+		LIMIT $2`, accountID, limit)
+	if err != nil {
+		return nil, fmt.Errorf("recent activity: %w", err)
+	}
+	defer rows.Close()
+
+	out := []Activity{}
+	for rows.Next() {
+		var a Activity
+		var playedOn time.Time
+		if err := rows.Scan(&a.ID, &a.PlaythroughID, &a.Title, &a.CoverURL,
+			&playedOn, &a.Hours, &a.Note); err != nil {
+			return nil, fmt.Errorf("scan activity: %w", err)
+		}
+		a.PlayedOn = playedOn.Format("2006-01-02")
+		out = append(out, a)
+	}
+	return out, rows.Err()
+}

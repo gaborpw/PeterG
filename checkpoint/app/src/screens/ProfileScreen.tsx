@@ -5,9 +5,11 @@ import { Cover } from '../components/Cover';
 import { PosterRow } from '../components/PosterRow';
 import { SectionHeading } from '../components/SectionHeading';
 import { gameByTitle } from '../catalogue';
+import { daysAgo } from '../dates';
 import { platformLabel } from '../platforms';
 import { useProfile } from '../profile';
 import { useTabs } from '../tabs';
+import { ActivityFeed } from '../components/ActivityFeed';
 import { RatingSummary } from '../components/RatingSummary';
 import { Stars } from '../components/Stars';
 import { aggregateFor, aggregateLogs } from '../data';
@@ -43,6 +45,13 @@ export function ProfileScreen() {
   // Wanting or shelving a game says nothing about how you rate, so the spread
   // is drawn from the games you actually played.
   const mine = aggregateLogs(started);
+
+  // The number sessions bought us. "All time" says how much you have ever
+  // played, which never changes fast enough to mean anything; this says
+  // whether you have played lately, which is the thing you actually wonder.
+  const thisWeek = all.filter(
+    (p) => p.lastPlayedOn !== undefined && daysAgo(p.lastPlayedOn) < 7,
+  ).length;
 
   return (
     <ScrollView
@@ -109,6 +118,12 @@ export function ProfileScreen() {
         <Divider />
         <Stat value={`${finishRate}%`} label="FINISH RATE" warm />
         <Divider />
+        <Stat
+          value={String(thisWeek)}
+          label="THIS WEEK"
+          onPress={thisWeek > 0 ? () => openLibrary('playing') : undefined}
+        />
+        <Divider />
         <Stat value={`${Math.round(totalHours)}h`} label="ALL TIME" />
       </View>
 
@@ -168,6 +183,21 @@ export function ProfileScreen() {
             );
           })}
         </View>
+      </View>
+
+      <View>
+        <Text
+          style={{
+            fontSize: 10,
+            letterSpacing: 1,
+            fontWeight: '600',
+            color: color.textFaint,
+            marginBottom: 11,
+          }}
+        >
+          RECENT ACTIVITY
+        </Text>
+        <ActivityFeed />
       </View>
 
       {/* Your own spread, not a game's. Same component, because a histogram
