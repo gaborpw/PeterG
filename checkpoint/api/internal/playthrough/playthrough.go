@@ -360,3 +360,42 @@ func (r *Repo) LogSessions(ctx context.Context, accountID int64, in []SessionEnt
 
 	return tx.Commit()
 }
+
+// Session is one dated entry in a playthrough's diary.
+type Session struct {
+	ID       int64   `json:"id"`
+	PlayedOn string  `json:"playedOn"`
+	Hours    float64 `json:"hours"`
+	Note     *string `json:"note,omitempty"`
+}
+
+// Sessions lists one playthrough's diary, newest first.
+//
+// Scoped by account in the join rather than by a separate ownership check: a
+// playthrough id is a guessable integer, and a check you have to remember to
+// write is one you can forget.
+func (r *Repo) Sessions(ctx context.Context, accountID, playthroughID int64) ([]Session, error) {
+	rows, err := r.db.QueryContext(ctx, `
+		SELECT s.id, s.played_on, COALESCE(s.hours, 0), s.note
+		FROM session s
+		JOIN playthrough p ON p.id = s.playthrough_id
+		WHERE s.playthrough_id = $1 AND p.account_id = $2
+		ORDER BY s.played_on DESC, s.id DESC`, playthroughID, accountID)
+	if err != nil {
+		return nil, fmt.Errorf("list sessions: %w", err)
+	}
+	defer rows.Close()
+
+	// Never nil, so the client handles one shape of "nothing" rather than two.
+	out := []Session{}
+	for rows.Next() {
+		var s Session
+		var playedOn time.Time
+		if err := rows.Scan(&s.ID, &playedOn, &s.Hours, &s.Note); err != nil {
+			return nil, fmt.Errorf("scan session: %w", err)
+		}
+		s.PlayedOn = playedOn.Format("2006-01-02")
+		out = append(out, s)
+	}
+	return out, rows.Err()
+}

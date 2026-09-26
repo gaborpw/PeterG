@@ -180,6 +180,25 @@ export async function logSessions(entries: SessionEntry[]): Promise<Playthrough[
   return (body as WirePlaythrough[]).map(fromWire);
 }
 
+export type Session = {
+  id: number;
+  playedOn: string;
+  hours: number;
+  note?: string;
+};
+
+/** One playthrough's diary, newest first. */
+export async function listSessions(playthroughId: string): Promise<Session[]> {
+  const res = await request(
+    `/v1/me/playthroughs/${encodeURIComponent(playthroughId)}/sessions`,
+  );
+  if (!res.ok) throw await errorFrom(res);
+
+  const body: unknown = await res.json();
+  if (!Array.isArray(body)) throw new Error('unexpected response shape');
+  return body as Session[];
+}
+
 export async function deletePlaythrough(id: string): Promise<void> {
   const res = await request(`/v1/me/playthroughs/${encodeURIComponent(id)}`, {
     method: 'DELETE',

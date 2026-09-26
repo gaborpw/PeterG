@@ -57,6 +57,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("DELETE /v1/me/playthroughs/{id}", s.handleDeletePlaythrough)
 
 	mux.HandleFunc("POST /v1/me/sessions", s.handleLogSessions)
+	mux.HandleFunc("GET /v1/me/playthroughs/{id}/sessions", s.handleListSessions)
 
 	mux.HandleFunc("GET /v1/me/profile", s.handleGetProfile)
 	mux.HandleFunc("PATCH /v1/me/profile", s.handleUpdateProfile)
@@ -277,4 +278,20 @@ func (s *Server) handleLogSessions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, all)
+}
+
+func (s *Server) handleListSessions(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "bad id"})
+		return
+	}
+
+	sessions, err := s.plays.Sessions(r.Context(), s.accountID(), id)
+	if err != nil {
+		s.log.ErrorContext(r.Context(), "list sessions", "err", err)
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "could not load"})
+		return
+	}
+	writeJSON(w, http.StatusOK, sessions)
 }

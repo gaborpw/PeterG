@@ -5,6 +5,7 @@ import { Backdrop } from '../components/Backdrop';
 import { Chip } from '../components/Chip';
 import { Cover } from '../components/Cover';
 import { LinkRow } from '../components/LinkRow';
+import { SessionList } from '../components/SessionList';
 import { Stars } from '../components/Stars';
 import type { PlaythroughScreenProps } from '../navigation';
 import { useLibrary } from '../store';
@@ -141,6 +142,11 @@ export function PlaythroughScreen({ route, navigation }: PlaythroughScreenProps)
         >
           <LinkRow label="Go to game" onPress={openGame} />
           <LinkRow label="See more logs" muted />
+        </View>
+
+        <View style={{ gap: 11, marginTop: space.xxl }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: color.text }}>Sessions</Text>
+          <SessionList playthroughId={p.id} />
         </View>
 
         <View style={{ gap: 10, marginTop: space.xxl }}>
